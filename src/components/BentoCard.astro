@@ -1,0 +1,22 @@
+---
+import type { CardTone } from '@/types/theme';
+
+interface Props {
+  class?: string;
+  href?: string;
+  tag?: 'article' | 'a' | 'div';
+  tone?: CardTone;
+}
+
+const { class: className = '', href, tag = 'article', tone = 'neutral' } = Astro.props;
+const Tag = tag === 'a' ? 'a' : tag === 'div' ? 'div' : 'article';
+const linkProps = tag === 'a' && href ? { href } : {};
+---
+
+<Tag class:list={['bento-card group', `bento-card--${tone}`, className]} {...linkProps}>
+  <div class="bento-card-accent" aria-hidden="true"></div>
+  <div class="bento-card-glow" aria-hidden="true"></div>
+  <div class="relative z-10 h-full">
+    <slot />
+  </div>
+</Tag>

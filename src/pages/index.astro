@@ -1,0 +1,319 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import { site } from '@/config/site';
+import BentoCard from '@/components/BentoCard.astro';
+import ScrollReveal from '@/components/ScrollReveal.astro';
+import CardIcon from '@/components/CardIcon.astro';
+import type { CardTone, IconName, IconTone } from '@/types/theme';
+
+const services: {
+  title: string;
+  description: string;
+  icon: IconName;
+  tone: CardTone;
+}[] = [
+  {
+    title: 'Agentes y sistemas de agentes',
+    description:
+      'Orquestación robusta para delegar tareas repetitivas con fiabilidad, no demos frágiles.',
+    icon: 'agents',
+    tone: 'sky',
+  },
+  {
+    title: 'RAG y conocimiento empresarial',
+    description:
+      'Respuestas basadas en tu documentación real: formación interna, procedimientos, FAQs.',
+    icon: 'brain',
+    tone: 'violet',
+  },
+  {
+    title: 'Integración vía APIs',
+    description: 'Conexión con tus herramientas actuales sin plataformas intermedias.',
+    icon: 'api',
+    tone: 'teal',
+  },
+  {
+    title: 'Soluciones a medida',
+    description: 'Código propio. Sin dependencia de N8N, Make u otros conectores de terceros.',
+    icon: 'code',
+    tone: 'cyan',
+  },
+];
+
+const projects: {
+  title: string;
+  description: string;
+  icon: IconName;
+  tone: CardTone;
+}[] = [
+  {
+    title: 'Chatbots de formación interna',
+    description: 'Formación de trabajadores con respuestas contextualizadas sobre procesos y normativa.',
+    icon: 'chat',
+    tone: 'violet',
+  },
+  {
+    title: 'Chatbots de reservas',
+    description: 'Gestión de citas conversacional, integrada con la agenda del negocio.',
+    icon: 'calendar',
+    tone: 'sky',
+  },
+  {
+    title: 'Informes post-reunión',
+    description: 'Generación, envío y seguimiento automático de informes tras reuniones.',
+    icon: 'report',
+    tone: 'teal',
+  },
+  {
+    title: 'Documentación viva',
+    description: 'Actualización automática de documentación cuando cambian procesos o datos.',
+    icon: 'docs',
+    tone: 'amber',
+  },
+  {
+    title: 'Agentes de comunicación',
+    description: 'Email, redes sociales y publicaciones web con supervisión humana.',
+    icon: 'broadcast',
+    tone: 'rose',
+  },
+];
+
+const stack: { label: string; tone: IconTone }[] = [
+  { label: 'Orquestación de agentes', tone: 'sky' },
+  { label: 'RAG', tone: 'violet' },
+  { label: 'MCP', tone: 'teal' },
+  { label: 'A2A', tone: 'amber' },
+  { label: 'APIs REST', tone: 'cyan' },
+];
+
+const approach: {
+  title: string;
+  description: string;
+  icon: IconName;
+  tone: CardTone;
+}[] = [
+  {
+    title: 'Sinceridad',
+    description: 'Te digo qué funciona hoy, qué no y qué merece la pena explorar.',
+    icon: 'target',
+    tone: 'amber',
+  },
+  {
+    title: 'Pasos pequeños',
+    description: 'Automatizamos por fases, no prometo reemplazar un departamento entero de golpe.',
+    icon: 'steps',
+    tone: 'teal',
+  },
+  {
+    title: 'Código propio',
+    description: 'Soluciones que controlas tú, mantenibles y adaptables a tu negocio.',
+    icon: 'shield',
+    tone: 'sky',
+  },
+];
+---
+
+<Layout>
+  <!-- Hero -->
+  <section class="section-padding pb-12 lg:pb-16">
+    <div class="container-wide">
+      <ScrollReveal delay={0}>
+        <BentoCard tone="sky" class="relative overflow-hidden p-8 sm:p-10">
+          <div class="hero-grid">
+            <div class="hero-main">
+              <p class="section-label section-label--sky mb-6">Automatización · IA · Agentes</p>
+              <h1 class="display-title max-w-2xl">
+                <span class="text-gradient">{site.title}</span>
+              </h1>
+              <p class="mt-6 max-w-xl text-base leading-relaxed text-ink-muted sm:text-lg">
+                Ayudo a agilizar trabajo repetitivo creando agentes y sistemas de agentes robustos.
+                <span class="text-sky-200">Sin plataformas de terceros</span> — soluciones a medida en las que puedes confiar.
+              </p>
+              <div class="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+                <a href="#contacto" class="btn-primary">Hablemos</a>
+                <a href="#proyectos" class="btn-secondary">Ver proyectos</a>
+              </div>
+            </div>
+
+            <aside class="hero-stack" aria-label="Stack técnico">
+              <p class="hero-stack-label">Stack</p>
+              <ul class="hero-stack-list">
+                {
+                  stack.map((item) => (
+                    <li class={`stack-tag stack-tag--${item.tone}`}>
+                      <span class="h-1.5 w-1.5 shrink-0 rounded-full bg-current opacity-70"></span>
+                      {item.label}
+                    </li>
+                  ))
+                }
+              </ul>
+            </aside>
+          </div>
+        </BentoCard>
+      </ScrollReveal>
+    </div>
+  </section>
+
+  <!-- Servicios -->
+  <section id="servicios" class="section-padding-compact section-tint-sky">
+    <div class="container-wide">
+      <ScrollReveal class="section-header">
+        <p class="section-label section-label--sky mb-3">Servicios</p>
+        <h2 class="section-title">Qué hago</h2>
+        <p class="section-intro">
+          Más de 3 años trabajando con tecnología puntera aplicada a problemas reales de negocio.
+        </p>
+      </ScrollReveal>
+
+      <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-2 lg:gap-4">
+        {
+          services.map((service, index) => (
+            <ScrollReveal delay={index * 60}>
+              <BentoCard tone={service.tone} class="content-card">
+                <div class="flex items-start gap-3">
+                  <CardIcon name={service.icon} tone={service.tone as IconTone} compact />
+                  <div class="min-w-0">
+                    <h3 class="content-card-title">{service.title}</h3>
+                    <p class="content-card-text">{service.description}</p>
+                  </div>
+                </div>
+              </BentoCard>
+            </ScrollReveal>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Proyectos -->
+  <section id="proyectos" class="section-padding-compact section-tint-violet">
+    <div class="container-wide">
+      <ScrollReveal class="section-header">
+        <p class="section-label section-label--violet mb-3">Portfolio</p>
+        <h2 class="section-title">Proyectos recientes</h2>
+        <p class="section-intro">
+          Algunos ejemplos de lo que he implementado para clientes.
+        </p>
+      </ScrollReveal>
+
+      <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 lg:gap-4">
+        {
+          projects.map((project, index) => (
+            <ScrollReveal delay={index * 50}>
+              <BentoCard tone={project.tone} class="content-card">
+                <div class="flex items-start gap-3">
+                  <CardIcon name={project.icon} tone={project.tone as IconTone} compact />
+                  <div class="min-w-0">
+                    <h3 class="content-card-title">{project.title}</h3>
+                    <p class="content-card-text">{project.description}</p>
+                  </div>
+                </div>
+              </BentoCard>
+            </ScrollReveal>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Enfoque -->
+  <section id="enfoque" class="section-padding-compact section-tint-amber">
+    <div class="container-wide">
+      <ScrollReveal class="section-header">
+        <p class="section-label section-label--amber mb-3">Filosofía</p>
+        <h2 class="section-title">Cómo trabajo</h2>
+        <p class="section-intro">
+          La gente con la que he trabajado valora el realismo y la claridad por encima del marketing de IA.
+        </p>
+      </ScrollReveal>
+
+      <div class="grid gap-3 lg:gap-4">
+        <ScrollReveal delay={0}>
+          <BentoCard tone="amber" class="content-card">
+            <blockquote class="content-quote">
+              «No vendo humo con la IA. Prefiero <span class="text-gradient-warm">pasos pequeños</span> que funcionen a promesas grandilocuentes.»
+            </blockquote>
+          </BentoCard>
+        </ScrollReveal>
+
+        <div class="grid gap-3 sm:grid-cols-3 lg:gap-4">
+          {
+            approach.map((item, index) => (
+              <ScrollReveal delay={(index + 1) * 60}>
+                <BentoCard tone={item.tone} class="content-card">
+                  <div class="flex items-start gap-3">
+                    <CardIcon name={item.icon} tone={item.tone as IconTone} compact />
+                    <div class="min-w-0">
+                      <h3 class="content-card-title">{item.title}</h3>
+                      <p class="content-card-text">{item.description}</p>
+                    </div>
+                  </div>
+                </BentoCard>
+              </ScrollReveal>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contacto -->
+  <section id="contacto" class="section-padding-compact">
+    <div class="container-narrow">
+      <ScrollReveal>
+        <BentoCard tone="teal" class="content-card overflow-visible sm:p-6">
+          <div class="pointer-events-none absolute -top-16 left-1/4 h-32 w-32 rounded-full bg-sky-400/10 blur-3xl" aria-hidden="true"></div>
+          <div class="pointer-events-none absolute -bottom-12 right-1/4 h-32 w-32 rounded-full bg-violet-400/10 blur-3xl" aria-hidden="true"></div>
+
+          <p class="section-label section-label--teal mb-3">Contacto</p>
+          <h2 class="section-title">
+            Hablemos de tu <span class="text-gradient">próximo paso</span>
+          </h2>
+          <p class="section-intro max-w-lg">
+            Cuéntame qué proceso te gustaría automatizar.
+          </p>
+
+          <div class="mt-6 grid gap-2.5 sm:grid-cols-3 sm:gap-3">
+            <a href={`mailto:${site.email}`} class="group contact-chip contact-chip--sky">
+              <span class="contact-chip-label">Email</span>
+              <span class="contact-chip-value break-all group-hover:text-sky-300">
+                {site.email}
+              </span>
+            </a>
+            <a href={`tel:${site.phone.replace(/\s/g, '')}`} class="group contact-chip contact-chip--teal">
+              <span class="contact-chip-label">Teléfono</span>
+              <span class="contact-chip-value group-hover:text-teal-300">
+                {site.phone}
+              </span>
+            </a>
+            <a
+              href={site.linkedin}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="group contact-chip contact-chip--violet"
+            >
+              <span class="contact-chip-label">LinkedIn</span>
+              <span class="contact-chip-value group-hover:text-violet-300">
+                Ver perfil →
+              </span>
+            </a>
+          </div>
+        </BentoCard>
+      </ScrollReveal>
+    </div>
+  </section>
+</Layout>
+
+<script>
+  if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    document.querySelectorAll('.bento-card').forEach((card) => {
+      card.addEventListener('mousemove', (e) => {
+        const rect = (card as HTMLElement).getBoundingClientRect();
+        const x = ((e as MouseEvent).clientX - rect.left) / rect.width * 100;
+        const y = ((e as MouseEvent).clientY - rect.top) / rect.height * 100;
+        (card as HTMLElement).style.setProperty('--mouse-x', `${x}%`);
+        (card as HTMLElement).style.setProperty('--mouse-y', `${y}%`);
+      });
+    });
+  }
+</script>

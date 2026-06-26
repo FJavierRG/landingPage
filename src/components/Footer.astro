@@ -1,0 +1,32 @@
+---
+import { site } from '@/config/site';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="relative z-10 border-t border-white/[0.06] bg-surface-raised/50 backdrop-blur-sm">
+  <div class="container-wide section-padding !py-10">
+    <div class="flex flex-col items-center justify-between gap-6 sm:flex-row">
+      <p class="text-sm text-ink-faint sm:text-base">
+        © {year} {site.name}
+      </p>
+      <div class="flex flex-wrap items-center justify-center gap-4 sm:gap-6">
+        <a
+          href={`mailto:${site.email}`}
+          class="text-sm text-ink-muted transition hover:text-accent sm:text-base"
+        >
+          {site.email}
+        </a>
+        <span class="hidden text-ink-faint sm:inline">·</span>
+        <a
+          href={site.linkedin}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="text-sm text-ink-muted transition hover:text-accent sm:text-base"
+        >
+          LinkedIn
+        </a>
+      </div>
+    </div>
+  </div>
+</footer>
