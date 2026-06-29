@@ -7,6 +7,22 @@ export default defineConfig({
   site: 'https://fjavierrg.github.io',
   base: '/landingPage/',
   integrations: [tailwind(), sitemap()],
+  experimental: {
+    csp: {
+      directives: [
+        "default-src 'self'",
+        "img-src 'self' data:",
+        "font-src 'self'",
+        "connect-src 'self'",
+        "base-uri 'self'",
+        "form-action 'self'",
+        "object-src 'none'",
+      ],
+      styleDirective: {
+        resources: ["'self'", "'unsafe-inline'"],
+      },
+    },
+  },
   vite: {
     resolve: {
       alias: {
