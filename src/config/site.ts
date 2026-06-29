@@ -4,6 +4,8 @@
  * Centralizarlos aquí evita buscarlos por toda la web.
  */
 export const site = {
+  /** URL pública en GitHub Pages (sin barra final) */
+  url: 'https://fjavierrg.github.io/landingPage',
   name: 'Francisco Javier Ruiz García',
   title: 'Arquitecto de sistemas de Inteligencia Artificial',
   email: 'fjavierRG26@outlook.com',

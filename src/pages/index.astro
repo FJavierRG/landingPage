@@ -4,6 +4,7 @@ import { site } from '@/config/site';
 import BentoCard from '@/components/BentoCard.astro';
 import ScrollReveal from '@/components/ScrollReveal.astro';
 import CardIcon from '@/components/CardIcon.astro';
+import ProjectsCarousel from '@/components/ProjectsCarousel.astro';
 import type { CardTone, IconName, IconTone } from '@/types/theme';
 
 const services: {
@@ -45,34 +46,42 @@ const projects: {
   description: string;
   icon: IconName;
   tone: CardTone;
+  image?: string;
+  imageAlt?: string;
 }[] = [
   {
     title: 'Chatbots de formación interna',
-    description: 'Formación de trabajadores con respuestas contextualizadas sobre procesos y normativa.',
+    description: 'El cliente necesitaba darle a los juniors una herramienta que les permitiera resolver dudas del día a día sin tener que esperar a que un mentor les respondiera. \n Además, percibieron que los trabajadores en formación a veces tenían reparos en preguntar aspectos básicos a otros trabajadores por "verguenza". \nCon esta herramienta, utilizando Telegram, podían resolver la mayoría de las dudas en cuestión de segundos.',
     icon: 'chat',
     tone: 'violet',
+    image: `${import.meta.env.BASE_URL}chatformacion.png`,
+    imageAlt: 'Captura del chatbot de formación interna respondiendo consultas sobre ubicación de compañeros y documentación',
   },
   {
     title: 'Chatbots de reservas',
-    description: 'Gestión de citas conversacional, integrada con la agenda del negocio.',
+    description: 'En este caso el cliente tenía que parar lo que estaba haciendo cada vez que llegaba una pregunta al Whatsapp sobre disponibilidad de horarios, tarifas, precios alternativos, etc... \n Con el chatbot de reservas y un simple Excel gestionado por la IA todas estas consultas se gestionaban de forma automática de forma sincronizada con el calendario de citas del negocio, así como toda la documentación de servicios y precios disponibles.',
     icon: 'calendar',
     tone: 'sky',
+    image: `${import.meta.env.BASE_URL}chatReservas.png`,
+    imageAlt: 'Diagrama del chatbot de reservas consultando calendario, web y documentación para responder al cliente',
   },
   {
     title: 'Informes post-reunión',
-    description: 'Generación, envío y seguimiento automático de informes tras reuniones.',
+    description: 'Después de sesiones de consultoría de varias horas con los comités de las empresas a las que asesoraba, este cliente se veía teniendo que elaborar informes de seguimiento en los que el aporte de valor humano era mínimo. \nCon la herramienta de generación de informes, a partir de transcripciones de 70 páginas de cada sesión, obtenía un informe de 10 páginas siempre con la misma maqueta y siguiendo sus criterios de redacción, seguridad y sanitización de contenido. \n Además, el sistema se encargaba del envío automático de los informes vía mail y del recordatorio de las siguientes sesiones de consultoría.',
     icon: 'report',
     tone: 'teal',
+    image: `${import.meta.env.BASE_URL}sistemainformes.png`,
+    imageAlt: 'Flujo del sistema de informes: reunión y transcripción, procesamiento con IA, informe generado, envío por email y recordatorio de citas',
   },
   {
     title: 'Documentación viva',
-    description: 'Actualización automática de documentación cuando cambian procesos o datos.',
+    description: 'Para una academia de formación a opositores tener el temario actualizado con lo último que aparece en el BOE en el menor tiempo posible es crucial. \nCon esta herramienta el cliente podía quitar la carga a sus profesores de esta tarea. El sistema de IA analizaba documentos del BOE; encontraba similitudes entre el temario de la academia y las modificaciones; proponía los cambios correspondientes a cada tema y tras verificación humana los aplicaba, manteniendo un registro del histórico de cambios.',
     icon: 'docs',
     tone: 'amber',
   },
   {
     title: 'Agentes de comunicación',
-    description: 'Email, redes sociales y publicaciones web con supervisión humana.',
+    description: 'Teniendo a su disposición la información sobre el negocio, el estilo de redacción y los objetivos de marketing de este cliente, un grupo de Agentes interconectados entre si se encargaban de gestionarle las publicaciones en redes sociales. \nAdemás, teniendo localizados los usuarios clave con los que había que interactuar, se encargaban de repartir interacciones con sus publicaciones en forma de Likes, Compartir o Recomendaciones.',
     icon: 'broadcast',
     tone: 'rose',
   },
@@ -188,7 +197,7 @@ const approach: {
   <!-- Proyectos -->
   <section id="proyectos" class="section-padding-compact section-tint-violet">
     <div class="container-wide">
-      <ScrollReveal class="section-header">
+      <ScrollReveal class="section-header !mb-4 lg:!mb-5">
         <p class="section-label section-label--violet mb-3">Portfolio</p>
         <h2 class="section-title">Proyectos recientes</h2>
         <p class="section-intro">
@@ -196,23 +205,9 @@ const approach: {
         </p>
       </ScrollReveal>
 
-      <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 lg:gap-4">
-        {
-          projects.map((project, index) => (
-            <ScrollReveal delay={index * 50}>
-              <BentoCard tone={project.tone} class="content-card">
-                <div class="flex items-start gap-3">
-                  <CardIcon name={project.icon} tone={project.tone as IconTone} compact />
-                  <div class="min-w-0">
-                    <h3 class="content-card-title">{project.title}</h3>
-                    <p class="content-card-text">{project.description}</p>
-                  </div>
-                </div>
-              </BentoCard>
-            </ScrollReveal>
-          ))
-        }
-      </div>
+      <ScrollReveal>
+        <ProjectsCarousel projects={projects} />
+      </ScrollReveal>
     </div>
   </section>
 

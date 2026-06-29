@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="Francisco Javier Ruiz García  Arquitecto de sistemas de Inteligencia Artificial">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1f2027"/>
+      <stop offset="100%" stop-color="#16171d"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#a78bfa"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <circle cx="150" cy="120" r="220" fill="#38bdf8" opacity="0.12"/>
+  <circle cx="1050" cy="520" r="260" fill="#a78bfa" opacity="0.1"/>
+  <text x="80" y="280" fill="#e8eaed" font-family="system-ui, sans-serif" font-size="52" font-weight="700">
+    Arquitecto de sistemas de
+  </text>
+  <text x="80" y="350" fill="url(#accent)" font-family="system-ui, sans-serif" font-size="52" font-weight="700">
+    Inteligencia Artificial
+  </text>
+  <text x="80" y="430" fill="#9aa0a6" font-family="system-ui, sans-serif" font-size="28">
+    Automatización · Agentes · RAG · APIs a medida
+  </text>
+  <text x="80" y="560" fill="#6b7280" font-family="system-ui, sans-serif" font-size="22">
+    Francisco Javier Ruiz García
+  </text>
+</svg>

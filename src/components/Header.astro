@@ -82,6 +82,7 @@ const navLinks = [
   toggle?.addEventListener('click', () => {
     const isOpen = menu?.classList.toggle('hidden') === false;
     toggle.setAttribute('aria-expanded', String(isOpen));
+    toggle.setAttribute('aria-label', isOpen ? 'Cerrar menú' : 'Abrir menú');
     iconOpen?.classList.toggle('hidden', isOpen);
     iconClose?.classList.toggle('hidden', !isOpen);
   });
@@ -90,6 +91,7 @@ const navLinks = [
     link.addEventListener('click', () => {
       menu?.classList.add('hidden');
       toggle?.setAttribute('aria-expanded', 'false');
+      toggle?.setAttribute('aria-label', 'Abrir menú');
       iconOpen?.classList.remove('hidden');
       iconClose?.classList.add('hidden');
     });

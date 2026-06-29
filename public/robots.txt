@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://fjavierrg.github.io/landingPage/sitemap-index.xml
