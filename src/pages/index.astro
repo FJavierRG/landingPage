@@ -50,20 +50,24 @@ const projects: {
   imageAlt?: string;
 }[] = [
   {
+    title: 'Asistente de ventas',
+    description: 'Este cliente tenía el problema de que los comerciales del departamento no utilizaban el CRM, por lo que era imposible recoger y analizar métricas. \nPara los comerciales era tedioso entrar a rellenar todos los datos después de cada correo, reunión, llamada, etc... \nPor ello les creamos un asistente que residía en Telegram. Los comerciales solo tenían que hablarle en audio de lo que habían hecho durante el día. El asistente se conectaba al CRM HubSpot y volcaba todos los datos en las categorías correspondientes. Además, se encargaba de gestionar el pipeline de proyectos, moviendo y actualizando cada tarjeta por las distintas fases.',
+    icon: 'agents',
+    tone: 'cyan',
+  },
+  {
+    title: 'Documentación viva',
+    description: 'Para una academia de formación a opositores tener el temario actualizado con lo último que aparece en el BOE en el menor tiempo posible es crucial. \nCon esta herramienta el cliente podía quitar la carga a sus profesores de esta tarea. El sistema de IA analizaba documentos del BOE; encontraba similitudes entre el temario de la academia y las modificaciones; proponía los cambios correspondientes a cada tema y tras verificación humana los aplicaba, manteniendo un registro del histórico de cambios.',
+    icon: 'docs',
+    tone: 'amber',
+  },
+  {
     title: 'Chatbots de formación interna',
     description: 'El cliente necesitaba darle a los juniors una herramienta que les permitiera resolver dudas del día a día sin tener que esperar a que un mentor les respondiera. \n Además, percibieron que los trabajadores en formación a veces tenían reparos en preguntar aspectos básicos a otros trabajadores por "verguenza". \nCon esta herramienta, utilizando Telegram, podían resolver la mayoría de las dudas en cuestión de segundos.',
     icon: 'chat',
     tone: 'violet',
     image: `${import.meta.env.BASE_URL}chatformacion.png`,
     imageAlt: 'Captura del chatbot de formación interna respondiendo consultas sobre ubicación de compañeros y documentación',
-  },
-  {
-    title: 'Chatbots de reservas',
-    description: 'En este caso el cliente tenía que parar lo que estaba haciendo cada vez que llegaba una pregunta al Whatsapp sobre disponibilidad de horarios, tarifas, precios alternativos, etc... \n Con el chatbot de reservas y un simple Excel gestionado por la IA todas estas consultas se gestionaban de forma automática de forma sincronizada con el calendario de citas del negocio, así como toda la documentación de servicios y precios disponibles.',
-    icon: 'calendar',
-    tone: 'sky',
-    image: `${import.meta.env.BASE_URL}chatReservas.png`,
-    imageAlt: 'Diagrama del chatbot de reservas consultando calendario, web y documentación para responder al cliente',
   },
   {
     title: 'Informes post-reunión',
@@ -74,10 +78,12 @@ const projects: {
     imageAlt: 'Flujo del sistema de informes: reunión y transcripción, procesamiento con IA, informe generado, envío por email y recordatorio de citas',
   },
   {
-    title: 'Documentación viva',
-    description: 'Para una academia de formación a opositores tener el temario actualizado con lo último que aparece en el BOE en el menor tiempo posible es crucial. \nCon esta herramienta el cliente podía quitar la carga a sus profesores de esta tarea. El sistema de IA analizaba documentos del BOE; encontraba similitudes entre el temario de la academia y las modificaciones; proponía los cambios correspondientes a cada tema y tras verificación humana los aplicaba, manteniendo un registro del histórico de cambios.',
-    icon: 'docs',
-    tone: 'amber',
+    title: 'Chatbots de reservas',
+    description: 'En este caso el cliente tenía que parar lo que estaba haciendo cada vez que llegaba una pregunta al Whatsapp sobre disponibilidad de horarios, tarifas, precios alternativos, etc... \n Con el chatbot de reservas y un simple Excel gestionado por la IA todas estas consultas se gestionaban de forma automática de forma sincronizada con el calendario de citas del negocio, así como toda la documentación de servicios y precios disponibles.',
+    icon: 'calendar',
+    tone: 'sky',
+    image: `${import.meta.env.BASE_URL}chatReservas.png`,
+    imageAlt: 'Diagrama del chatbot de reservas consultando calendario, web y documentación para responder al cliente',
   },
   {
     title: 'Agentes de comunicación',

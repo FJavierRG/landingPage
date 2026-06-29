@@ -377,7 +377,7 @@
   .projects-carousel {
     --slide-size: 76%;
     --slide-spacing: 1.25rem;
-    @apply relative;
+    @apply relative flex flex-col;
   }
 
   @media (min-width: 640px) {
@@ -517,6 +517,10 @@
     background: linear-gradient(145deg, rgba(251, 113, 133, 0.12) 0%, rgba(31, 32, 39, 0.95) 100%);
   }
 
+  .projects-carousel__media--cyan {
+    background: linear-gradient(145deg, rgba(34, 211, 238, 0.12) 0%, rgba(31, 32, 39, 0.95) 100%);
+  }
+
   .projects-carousel__image {
     @apply h-full w-full object-contain p-4 sm:p-6;
     min-height: 14rem;
@@ -550,12 +554,16 @@
     @apply text-rose-300;
   }
 
+  .projects-carousel__media--cyan .projects-carousel__placeholder-icon {
+    @apply text-cyan-300;
+  }
+
   .projects-carousel__placeholder-label {
     @apply text-xs font-medium uppercase tracking-widest text-ink-faint;
   }
 
   .projects-carousel__controls {
-    @apply mt-2 flex items-center justify-center gap-4;
+    @apply order-first mb-2 flex items-center justify-center gap-4 md:order-none md:mb-0 md:mt-2;
   }
 
   .projects-carousel__nav {
