@@ -466,11 +466,11 @@
   }
 
   .projects-carousel__card-inner {
-    @apply grid h-full min-h-[clamp(24rem,48vh,36rem)] gap-0 md:grid-cols-[3fr_2fr];
+    @apply grid h-[clamp(26rem,52vh,38rem)] gap-0 md:grid-cols-[3fr_2fr];
   }
 
   .projects-carousel__content {
-    @apply flex flex-col justify-center px-6 py-3 sm:px-7 sm:py-3.5 md:px-8 md:py-4;
+    @apply flex min-h-0 flex-col justify-center overflow-y-auto px-6 py-3 sm:px-7 sm:py-3.5 md:px-8 md:py-4;
   }
 
   .projects-carousel__content .content-card-title {
@@ -494,7 +494,7 @@
   }
 
   .projects-carousel__media {
-    @apply relative min-h-[14rem] overflow-hidden border-t border-white/[0.06] md:min-h-0 md:border-l md:border-t-0;
+    @apply relative flex h-56 shrink-0 items-center justify-center overflow-hidden border-t border-white/[0.06] md:h-auto md:min-h-0 md:border-l md:border-t-0;
   }
 
   .projects-carousel__media--sky {
@@ -522,12 +522,11 @@
   }
 
   .projects-carousel__image {
-    @apply h-full w-full object-contain p-4 sm:p-6;
-    min-height: 14rem;
+    @apply h-full w-full object-contain object-center p-4 sm:p-5;
   }
 
   .projects-carousel__placeholder {
-    @apply flex h-full min-h-[14rem] flex-col items-center justify-center gap-3 p-6 text-center;
+    @apply absolute inset-0 flex flex-col items-center justify-center gap-3 p-6 text-center;
   }
 
   .projects-carousel__placeholder-icon {

@@ -51,9 +51,11 @@ const projects: {
 }[] = [
   {
     title: 'Asistente de ventas',
-    description: 'Este cliente tenía el problema de que los comerciales del departamento no utilizaban el CRM, por lo que era imposible recoger y analizar métricas. \nPara los comerciales era tedioso entrar a rellenar todos los datos después de cada correo, reunión, llamada, etc... \nPor ello les creamos un asistente que residía en Telegram. Los comerciales solo tenían que hablarle en audio de lo que habían hecho durante el día. El asistente se conectaba al CRM HubSpot y volcaba todos los datos en las categorías correspondientes. Además, se encargaba de gestionar el pipeline de proyectos, moviendo y actualizando cada tarjeta por las distintas fases.',
+    description: 'Este cliente tenía el problema de que los comerciales del departamento no utilizaban el CRM, por lo que era imposible recoger y analizar métricas. \nPara los comerciales era tedioso entrar a rellenar todos los datos después de cada correo, reunión, llamada, etc... \nPor ello les creé un asistente que residía en Telegram. Los comerciales solo tenían que hablarle en audio de lo que habían hecho durante el día. El asistente se conectaba al CRM HubSpot y volcaba todos los datos en las categorías correspondientes. Además, se encargaba de gestionar el pipeline de proyectos, moviendo y actualizando cada tarjeta por las distintas fases.',
     icon: 'agents',
     tone: 'cyan',
+    image: `${import.meta.env.BASE_URL}asistenteventas.png`,
+    imageAlt: 'Diagrama del asistente de ventas: comercial envía audio por Telegram, la IA procesa la actividad e integra los datos en HubSpot y el pipeline de ventas',
   },
   {
     title: 'Documentación viva',
