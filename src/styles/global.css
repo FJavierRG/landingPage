@@ -90,10 +90,14 @@
     cursor: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='20'%20height='20'%20viewBox='0%200%2020%2020'%3E%3Cpath%20d='M2%201%20V15%20L6%2011%20L8.5%2017.5%20L11.5%2016.3%20L9%2010%20H14%20Z'%20fill='%2316130d'%20stroke='%23f3ecd9'%20stroke-width='1.4'%20shape-rendering='crispEdges'/%3E%3C/svg%3E") 2 1, auto;
   }
   .cursor-retro .icon,
+  .cursor-retro .icon *,
   .cursor-retro .titlebar .dot-close,
   .cursor-retro .file[data-opens],
+  .cursor-retro .file[data-opens] *,
   .cursor-retro .taskbar button,
-  .cursor-retro a {
+  .cursor-retro .taskbar button *,
+  .cursor-retro a,
+  .cursor-retro a * {
     cursor: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='20'%20height='20'%20viewBox='0%200%2020%2020'%3E%3Cpath%20d='M7%202%20H10%20V8%20H12%20V4%20H14%20V8%20H16%20V6%20H18%20V13%20L15%2018%20H8%20L5%2012%20H3%20V9%20H7%20Z'%20fill='%23f3ecd9'%20stroke='%2316130d'%20stroke-width='1.4'%20shape-rendering='crispEdges'/%3E%3C/svg%3E") 8 2, pointer;
   }
 
