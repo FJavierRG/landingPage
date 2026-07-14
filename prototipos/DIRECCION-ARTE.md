@@ -132,3 +132,4 @@ Dinn*, Macintosh clásico).
 | 5 | Cursor pixel + pantalla de arranque + dithering 1-bit | **cursor validado; arranque a 4s; dithering validado (imágenes las adapta el usuario)** |
 | 6 | Responsive móvil | **mismo stack sin marco físico; ventanas flotantes adaptadas, nunca pantalla completa** |
 | 7 | Efecto de apertura/cierre de ventanas: zoom vs rectángulos | **zoom sólido desde el icono, en PC y móvil** |
+| 8 | Intro en dos fases (trabajada ya sobre el proyecto real, no en prototipo) | **firma 3s FUERA del ordenador virtual (negro puro, cubre marco y CRT) → acid boot 3s dentro de la pantalla: staccato tipográfico (ref. Symphony in Acid / Ksawery Komputery) — bloques de palabras/tokens de sistema a cortes secos de ~100 ms, con typos, bloques en negativo, saltos de fila y palabra gigante ocasional. Sin ondas suaves, sin audio, bajo el overlay CRT. Con `prefers-reduced-motion` se omite entera.** |

@@ -168,8 +168,11 @@ const telHref = 'tel:' + site.phone.replace(/\s/g, '');
   <!-- Overlay CRT -->
   <canvas id="crt" aria-hidden="true"></canvas>
 
-  <!-- Pantalla de arranque -->
-  <div id="boot" aria-hidden="true"><span class="boot-name">{arranque.nombre}</span></div>
+  <!-- Intro fase 2: acid boot dentro de la pantalla del monitor -->
+  <canvas id="acid" aria-hidden="true"></canvas>
+
+  <!-- Intro fase 1: firma fuera del ordenador virtual (cubre marco y CRT) -->
+  <div id="firma" aria-hidden="true"><span class="firma-name">{arranque.nombre}</span></div>
 
   <!-- Marco físico del monitor (solo PC) -->
   <div id="bezel-tex" aria-hidden="true"></div>
@@ -179,7 +182,7 @@ const telHref = 'tel:' + site.phone.replace(/\s/g, '');
   <!-- Sin JS: se muestran las ventanas en flujo normal, sin arranque ni efectos -->
   <noscript>
     <style>
-      #boot, #crt, #bg-grid { display: none; }
+      #firma, #acid, #crt, #bg-grid { display: none; }
       body { overflow: auto; }
       #desk { position: static; }
       .window {
@@ -198,4 +201,5 @@ const telHref = 'tel:' + site.phone.replace(/\s/g, '');
 <script>
   import '@/scripts/crt';
   import '@/scripts/desktop';
+  import '@/scripts/intro';
 </script>

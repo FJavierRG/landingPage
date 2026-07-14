@@ -100,11 +100,14 @@
       "titulo": "sobre_mi.txt — Bloc de notas",
       "meta": "arquitecto_ia.exe · en ejecución desde 2023",
       "parrafos": [
-        "Construyo agentes de IA que trabajan mientras tú no miras: leen audios de comerciales, actualizan CRMs, vigilan el BOE y contestan WhatsApps a las tres de la mañana sin quejarse.",
-        "Código propio, sin conectores de terceros. Si algo se rompe, sé exactamente dónde — porque lo escribí yo. Cada sistema que entrego lleva detrás una decisión de arquitectura pensada para durar: integraciones directas con las herramientas que ya usa el cliente, trazas para saber qué hizo el agente y por qué, y un alcance acordado por escrito antes de la primera línea de código.",
-        "Una demo aguanta cinco minutos delante de un cliente; un sistema en producción aguanta un lunes por la mañana con veinte comerciales mandando audios a la vez. Diseño para lo segundo."
+        "Fco Javier Ruiz García, nacido en Sevila en 1994",
+        "   [Foto]   ",
+        "Ex-CTO y cofundador de People1, he dirigido la visión tecnológica de nuestra startup durante sus 3 primeros años de vida analizando, comprendiendo y desarrollando el cómo las empresas interactúan con la inteligencia artificial. Ahora quiero seguir creando algo nuevo.",
+        "Construyo agentes de IA que trabajan mientras tú no miras: escuchan audios de comerciales, actualizan CRMs, vigilan documentación y la actualizan, y contestan WhatsApps a las tres de la mañana, entre otros...",
+        "Mi especialidad reside en diseñar arquitecturas que conectan modelos de lenguaje avanzados con ecosistemas empresariales existentes y enormes volúmenes de datos, creando flujos de trabajo inteligentes que amplían las capacidades humanas en lugar de reemplazarlas.",
+        "Directamente en código propio, sin conectores de terceros ni plataformas No-Code, lo que nos permite ajustar donde tú necesites. Cada sistema que entrego lleva detrás una decisión de arquitectura pensada para durar: integraciones directas con las herramientas que ya usa el cliente, trazas para saber qué hizo el agente y por qué, y un alcance acordado antes de la primera línea de código."
       ],
-      "estado": "> sistema estable. 6 proyectos en producción. 0 demos abandonadas."
+      "estado": "> Mira esta web, ha sido 100% creada con IA bajo mi dirección de diseño e instrucciones de desarrollo, con absoluto control del resultado."
     },
 
     "contacto": {

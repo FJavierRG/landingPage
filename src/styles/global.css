@@ -395,17 +395,18 @@
     font-weight: 600;
   }
 
-  /* ---------- pantalla de arranque ---------- */
-  #boot {
+  /* ---------- fase 1: firma, FUERA del ordenador virtual ----------
+     Cubre todo el viewport (incluidos marco y CRT): negro puro, sin SO. */
+  #firma {
     position: fixed;
     inset: 0;
-    z-index: 8990;
-    background: #0a0d0a;
+    z-index: 9500;
+    background: #000;
     display: flex;
     align-items: center;
     justify-content: center;
   }
-  #boot .boot-name {
+  #firma .firma-name {
     font-family: 'Silkscreen', monospace;
     font-size: clamp(22px, 4vw, 44px);
     color: var(--paper);
@@ -419,18 +420,30 @@
     -webkit-mask-position: 100% 0;
     mask-position: 100% 0;
   }
-  #boot.play .boot-name {
-    animation: boot-in 0.5s 0.45s forwards, boot-wipe 1.05s 2.5s ease-in forwards;
+  /* 3 s totales: aparece, se borra de izquierda a derecha, funde a negro */
+  #firma.play .firma-name {
+    animation: firma-in 0.45s 0.3s forwards, firma-wipe 0.9s 1.75s ease-in forwards;
   }
-  #boot.play {
-    animation: boot-out 0.45s 3.55s forwards;
+  #firma.play {
+    animation: firma-out 0.35s 2.65s forwards;
   }
-  #boot.done {
+  @keyframes firma-in { to { opacity: 1; } }
+  @keyframes firma-wipe { to { -webkit-mask-position: 0% 0; mask-position: 0% 0; } }
+  @keyframes firma-out { to { opacity: 0; } }
+
+  /* ---------- fase 2: acid boot, dentro de la pantalla del monitor ----------
+     Vive bajo el overlay CRT (recibe scanlines y curvatura) y dentro del marco. */
+  #acid {
+    position: fixed;
+    inset: var(--bezel-w);
+    width: calc(100% - 2 * var(--bezel-w));
+    height: calc(100% - 2 * var(--bezel-w));
+    z-index: 8990;
+    background: #0a0d0a;
     display: none;
+    pointer-events: none;
+    transition: opacity 0.25s ease-out;
   }
-  @keyframes boot-in { to { opacity: 1; } }
-  @keyframes boot-wipe { to { -webkit-mask-position: 0% 0; mask-position: 0% 0; } }
-  @keyframes boot-out { to { opacity: 0; } }
 
   /* ---------- overlay CRT ---------- */
   #crt {

@@ -1,23 +1,11 @@
 /**
- * Gestor de escritorio: arranque, ventanas (abrir/cerrar/foco/arrastre),
+ * Gestor de escritorio: ventanas (abrir/cerrar/foco/arrastre),
  * rutas por hash, barra de tareas y reloj.
+ * La secuencia de intro (firma + acid boot) vive en intro.ts.
  */
 
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
-
-/* ================= Pantalla de arranque ================= */
-
-function runBoot() {
-  const boot = document.getElementById('boot');
-  if (!boot) return;
-  if (reducedMotion) {
-    boot.classList.add('done');
-    return;
-  }
-  boot.classList.add('play');
-  setTimeout(() => boot.classList.add('done'), 4100);
-}
 
 /* ================= Gestor de ventanas ================= */
 
@@ -196,6 +184,5 @@ function initClock() {
   setInterval(tick, 10000);
 }
 
-runBoot();
 initWindows();
 initClock();
