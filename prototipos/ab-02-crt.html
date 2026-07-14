@@ -1,0 +1,1022 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AB-02 · CRT — banda de rodadura y tearing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&family=Silkscreen:wght@400;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --paper: #f3ecd9;
+    --paper-2: #eae1c8;
+    --ink: #16130d;
+    --shadow: rgba(0, 0, 0, 0.45);
+    --border-w: 3px;
+    --radius: 10px;
+    /* grosor del marco fisico del monitor */
+    --bezel-w: 30px;
+    /* Ganadora ronda 1: verde saturado */
+    --desk: #59b463;
+    --desk-deco: rgba(20, 40, 22, 0.35);
+    --icon-label: #14281a;
+    --icon-label-bg: rgba(243, 236, 217, 0.75);
+    --accent: #1e5c2e;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--desk);
+    color: var(--ink);
+    overflow: hidden;
+    user-select: none;
+  }
+
+  /* Cursor pixel nativo via CSS: lo pinta el SO, cero lag.
+     El panel de debug conserva los cursores normales. */
+  body, #desk, #desk * {
+    cursor: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='20'%20height='20'%20viewBox='0%200%2020%2020'%3E%3Cpath%20d='M2%201%20V15%20L6%2011%20L8.5%2017.5%20L11.5%2016.3%20L9%2010%20H14%20Z'%20fill='%2316130d'%20stroke='%23f3ecd9'%20stroke-width='1.4'%20shape-rendering='crispEdges'/%3E%3C/svg%3E") 2 1, auto;
+  }
+  .panel, .panel * { cursor: auto; }
+  .panel button, .panel input { cursor: pointer; }
+
+  /* ================= Pantalla de arranque ================= */
+  #boot {
+    position: fixed;
+    inset: 0;
+    z-index: 8990; /* sobre el escritorio, bajo el CRT y el marco */
+    background: #0a0d0a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  #boot .boot-name {
+    font-family: 'Silkscreen', monospace;
+    font-size: clamp(22px, 4vw, 44px);
+    color: var(--paper);
+    letter-spacing: 0.06em;
+    text-shadow: 0 0 14px rgba(243, 236, 217, 0.35);
+    opacity: 0;
+    -webkit-mask-image: linear-gradient(90deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0) 40%, #000 60%, #000 100%);
+    mask-image: linear-gradient(90deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0) 40%, #000 60%, #000 100%);
+    -webkit-mask-size: 250% 100%;
+    mask-size: 250% 100%;
+    -webkit-mask-position: 100% 0;
+    mask-position: 100% 0;
+  }
+  #boot.play .boot-name { animation: boot-in 0.5s 0.45s forwards, boot-wipe 1.05s 2.5s ease-in forwards; }
+  #boot.play { animation: boot-out 0.45s 3.55s forwards; }
+  @keyframes boot-in { to { opacity: 1; } }
+  @keyframes boot-wipe {
+    to { -webkit-mask-position: 0% 0; mask-position: 0% 0; }
+  }
+  @keyframes boot-out { to { opacity: 0; } }
+
+  /* ================= Imagen con dithering 1-bit ================= */
+  .dither-fig {
+    margin: 4px 0 14px;
+    border: 2px solid var(--ink);
+    border-radius: 6px;
+    padding: 8px 8px 6px;
+    background: var(--paper-2);
+  }
+  .dither-fig canvas { width: 100%; display: block; image-rendering: pixelated; }
+  .dither-fig figcaption {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    opacity: 0.6;
+    margin-top: 6px;
+  }
+
+  /* El escritorio entero vive en este wrapper para poder "desgarrarlo" */
+  #desk { position: fixed; inset: 0; will-change: transform; }
+
+  /* ================= Decoración de escritorio ================= */
+  .desk-deco { position: fixed; inset: 0; pointer-events: none; color: var(--desk-deco); }
+  .desk-deco .bits {
+    position: absolute;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.35em;
+    writing-mode: vertical-rl;
+    opacity: 0.9;
+  }
+  .desk-deco .cross {
+    position: absolute;
+    font-family: 'Silkscreen', monospace;
+    font-size: 18px;
+  }
+  .desk-deco .frame {
+    position: absolute;
+    border: 1px dashed currentColor;
+    opacity: 0.6;
+  }
+
+  /* ================= Iconos de escritorio ================= */
+  .icons {
+    position: fixed;
+    top: calc(26px + var(--bezel-w));
+    left: calc(26px + var(--bezel-w));
+    display: flex;
+    flex-direction: column;
+    gap: 26px;
+    z-index: 2;
+  }
+  .icon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    width: 92px;
+    cursor: pointer;
+  }
+  .icon svg { image-rendering: pixelated; }
+  .icon .label {
+    font-family: 'Silkscreen', monospace;
+    font-size: 10px;
+    color: var(--icon-label);
+    background: var(--icon-label-bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+  .icon:hover svg { transform: translateY(-2px); }
+
+  /* ================= Ventanas ================= */
+  .window {
+    position: fixed;
+    background: var(--paper);
+    border: var(--border-w) solid var(--ink);
+    border-radius: var(--radius);
+    box-shadow: 9px 9px 0 var(--shadow);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .titlebar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border-bottom: var(--border-w) solid var(--ink);
+    background: var(--paper);
+  }
+  .titlebar .dots { display: flex; gap: 7px; }
+  .titlebar .dot {
+    width: 13px; height: 13px;
+    border: 2.5px solid var(--ink);
+    border-radius: 50%;
+  }
+  .titlebar .dot.fill { background: var(--ink); }
+  .titlebar .title {
+    flex: 1;
+    text-align: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 0.02em;
+  }
+  .titlebar .spacer { width: 53px; }
+
+  .win-about {
+    top: 8vh; left: 50%;
+    transform: translateX(-38%);
+    width: min(560px, 86vw);
+    z-index: 3;
+  }
+  .win-about .body {
+    padding: 22px 26px 26px;
+    line-height: 1.55;
+    font-size: 15px;
+    overflow-y: auto;
+    max-height: 64vh;
+  }
+  .win-about h1 {
+    margin: 0 0 4px;
+    font-size: 22px;
+    font-weight: 900;
+    letter-spacing: -0.01em;
+  }
+  .win-about .meta {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    opacity: 0.65;
+    margin-bottom: 14px;
+  }
+  .win-about p { margin: 0 0 12px; }
+  .win-about .sys {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12.5px;
+    background: var(--paper-2);
+    border: 2px solid var(--ink);
+    border-radius: 6px;
+    padding: 9px 12px;
+    margin-top: 6px;
+  }
+
+  .win-explorer {
+    top: 34vh; left: 8vw;
+    width: min(360px, 70vw);
+    z-index: 2;
+  }
+  .win-explorer .body {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px 8px;
+    padding: 22px 16px;
+  }
+  .win-explorer .file {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .win-explorer .file span {
+    font-family: 'Silkscreen', monospace;
+    font-size: 9px;
+  }
+
+  /* ================= Barra inferior ================= */
+  .taskbar {
+    position: fixed;
+    left: var(--bezel-w); right: var(--bezel-w); bottom: var(--bezel-w);
+    height: 58px;
+    background: var(--paper);
+    border-top: var(--border-w) solid var(--ink);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    /* zona segura: margen lateral para las esquinas y contenido elevado
+       para que la sombra del tubo no lo tape */
+    padding: 0 60px 14px;
+    z-index: 4;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+  }
+  .taskbar .start {
+    font-family: 'Silkscreen', monospace;
+    font-size: 11px;
+    border: 2.5px solid var(--ink);
+    border-radius: 6px;
+    padding: 4px 12px;
+    background: var(--paper-2);
+    cursor: pointer;
+  }
+  .taskbar .clock { margin-left: auto; font-weight: 600; }
+
+  /* ================= Overlay CRT ================= */
+  #crt {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9000;
+  }
+
+  /* ================= Marco fisico del monitor ================= */
+  /* Textura de plastico moteado: ruido procedural feTurbulence sobre beige,
+     pintado solo en el area del marco via border-image (el centro queda hueco) */
+  #bezel-tex {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9099;
+    border: var(--bezel-w) solid transparent;
+    border-image: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='240'%20height='240'%3E%3Cdefs%3E%3Cfilter%20id='n'%20x='0'%20y='0'%20width='100%25'%20height='100%25'%3E%3CfeTurbulence%20type='fractalNoise'%20baseFrequency='0.8'%20numOctaves='3'%20stitchTiles='stitch'/%3E%3CfeColorMatrix%20type='saturate'%20values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA%20type='linear'%20slope='0.34'%20intercept='0'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3C/defs%3E%3Crect%20width='240'%20height='240'%20fill='%23d5c9a4'/%3E%3Crect%20width='240'%20height='240'%20filter='url(%23n)'/%3E%3C/svg%3E") 80 round;
+  }
+  /* El "agujero" del cristal: filo de luz, pantalla hundida y anillo negro.
+     El spread beige del final rellena las esquinas redondeadas que la textura
+     (de hueco cuadrado) no cubre. */
+  #bezel {
+    position: fixed;
+    inset: var(--bezel-w);
+    border-radius: 14px;
+    border: 3px solid var(--ink);
+    box-shadow:
+      0 0 0 4px rgba(255, 255, 255, 0.22),
+      0 0 22px 8px rgba(0, 0, 0, 0.42),
+      0 0 0 15px #d5c9a4;
+    pointer-events: none;
+    z-index: 9100;
+  }
+  #bezel-led {
+    position: fixed;
+    right: 44px;
+    bottom: calc(var(--bezel-w) / 2 - 5px);
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #57d06b;
+    border: 2px solid var(--ink);
+    box-shadow: 0 0 8px 2px rgba(87, 208, 107, 0.65);
+    pointer-events: none;
+    z-index: 9102;
+  }
+
+  /* ================= Panel de control del test ================= */
+  .panel {
+    position: fixed;
+    right: 14px;
+    bottom: 58px;
+    z-index: 9500;
+    background: #1c1c1c;
+    color: #eee;
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    width: 250px;
+    opacity: 0.94;
+  }
+  .panel .row { display: flex; align-items: center; gap: 8px; }
+  .panel .row label { width: 68px; opacity: 0.85; }
+  .panel input[type='range'] { flex: 1; accent-color: #e8e0c8; }
+  .panel .val { width: 28px; text-align: right; }
+  .panel .hint { opacity: 0.55; font-size: 10.5px; line-height: 1.4; }
+
+  /* ================= Responsive móvil ================= */
+  @media (max-width: 700px) {
+    /* sin marco fisico: la pantalla es todo el viewport */
+    :root { --bezel-w: 0px; }
+    #bezel, #bezel-tex, #bezel-led { display: none; }
+
+    .icons {
+      top: 18px;
+      left: 12px;
+      gap: 18px;
+    }
+    .icon { width: 84px; }
+
+    .win-about {
+      top: 8vh;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 92vw;
+    }
+    .win-about .body {
+      padding: 16px 18px 20px;
+      font-size: 14px;
+      max-height: 52vh;
+    }
+    .win-about h1 { font-size: 19px; }
+
+    .win-explorer {
+      top: auto;
+      bottom: 76px;
+      left: 4vw;
+      width: min(320px, 64vw);
+    }
+    .win-explorer .body { gap: 14px 6px; padding: 16px 12px; }
+
+    .taskbar {
+      height: 52px;
+      padding: 0 14px 10px;
+      font-size: 12px;
+    }
+
+    .panel {
+      width: 210px;
+      right: 10px;
+      bottom: 62px;
+    }
+  }
+
+  /* Plegado del panel de debug (no es UI de la web) */
+  .panel.collapsed { display: none; }
+  #panel-toggle {
+    position: fixed;
+    right: 14px;
+    bottom: 58px;
+    z-index: 9501;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1px solid #555;
+    background: #1c1c1c;
+    color: #e8e0c8;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 18px;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+    opacity: 0.9;
+    display: none;
+  }
+  #panel-toggle.visible { display: block; }
+</style>
+</head>
+<body>
+
+<!-- Textura del escritorio dibujada YA curvada (capa sin texto: se puede doblar) -->
+<canvas id="bg-grid" style="position:fixed; inset:0; width:100%; height:100%; pointer-events:none;"></canvas>
+
+<div id="desk">
+  <!-- Decoración del escritorio -->
+  <div class="desk-deco" aria-hidden="true">
+    <span class="bits" style="top: 6%; right: 12%;">0110100101</span>
+    <span class="bits" style="top: 40%; right: 5%;">1010011010</span>
+    <span class="bits" style="bottom: 14%; left: 16%;">0011010110</span>
+    <span class="cross" style="top: 12%; right: 28%;">×</span>
+    <span class="cross" style="bottom: 22%; right: 18%;">×</span>
+    <span class="cross" style="top: 58%; left: 3%;">×</span>
+    <div class="frame" style="top: 8%; right: 6%; width: 130px; height: 70px;"></div>
+    <div class="frame" style="bottom: 12%; right: 30%; width: 90px; height: 90px;"></div>
+  </div>
+
+  <!-- Iconos -->
+  <nav class="icons">
+    <div class="icon" title="Trabajos">
+      <svg width="52" height="44" viewBox="0 0 13 11" shape-rendering="crispEdges">
+        <rect x="0" y="2" width="13" height="9" fill="#e8c455" stroke="#16130d" stroke-width="1"/>
+        <rect x="0" y="0" width="6" height="3" fill="#e8c455" stroke="#16130d" stroke-width="1"/>
+        <rect x="1" y="4" width="11" height="1" fill="#16130d" opacity="0.25"/>
+      </svg>
+      <span class="label">TRABAJOS</span>
+    </div>
+    <div class="icon" title="Proyectos">
+      <svg width="52" height="44" viewBox="0 0 13 11" shape-rendering="crispEdges">
+        <rect x="0" y="2" width="13" height="9" fill="#e8c455" stroke="#16130d" stroke-width="1"/>
+        <rect x="0" y="0" width="6" height="3" fill="#e8c455" stroke="#16130d" stroke-width="1"/>
+        <rect x="1" y="4" width="11" height="1" fill="#16130d" opacity="0.25"/>
+      </svg>
+      <span class="label">PROYECTOS</span>
+    </div>
+    <div class="icon" title="Sobre mí">
+      <svg width="44" height="52" viewBox="0 0 11 13" shape-rendering="crispEdges">
+        <rect x="0.5" y="0.5" width="10" height="12" fill="#f3ecd9" stroke="#16130d" stroke-width="1"/>
+        <rect x="2" y="3" width="7" height="1" fill="#16130d"/>
+        <rect x="2" y="5" width="7" height="1" fill="#16130d" opacity="0.5"/>
+        <rect x="2" y="7" width="7" height="1" fill="#16130d" opacity="0.5"/>
+        <rect x="2" y="9" width="4" height="1" fill="#16130d" opacity="0.5"/>
+      </svg>
+      <span class="label">SOBRE_MI.TXT</span>
+    </div>
+    <div class="icon" title="Contacto">
+      <svg width="52" height="40" viewBox="0 0 13 10" shape-rendering="crispEdges">
+        <rect x="0.5" y="0.5" width="12" height="9" fill="#f3ecd9" stroke="#16130d" stroke-width="1"/>
+        <path d="M1 1 L6.5 6 L12 1" fill="none" stroke="#16130d" stroke-width="1"/>
+      </svg>
+      <span class="label">CONTACTO</span>
+    </div>
+  </nav>
+
+  <!-- Ventana explorador (detrás) -->
+  <section class="window win-explorer">
+    <header class="titlebar">
+      <div class="dots"><span class="dot fill"></span><span class="dot"></span><span class="dot"></span></div>
+      <span class="title">proyectos/</span>
+      <span class="spacer"></span>
+    </header>
+    <div class="body">
+      <div class="file">
+        <svg width="40" height="34" viewBox="0 0 13 11" shape-rendering="crispEdges"><rect x="0" y="2" width="13" height="9" fill="#e8c455" stroke="#16130d" stroke-width="1"/><rect x="0" y="0" width="6" height="3" fill="#e8c455" stroke="#16130d" stroke-width="1"/></svg>
+        <span>VENTAS</span>
+      </div>
+      <div class="file">
+        <svg width="40" height="34" viewBox="0 0 13 11" shape-rendering="crispEdges"><rect x="0" y="2" width="13" height="9" fill="#e8c455" stroke="#16130d" stroke-width="1"/><rect x="0" y="0" width="6" height="3" fill="#e8c455" stroke="#16130d" stroke-width="1"/></svg>
+        <span>RESERVAS</span>
+      </div>
+      <div class="file">
+        <svg width="40" height="34" viewBox="0 0 13 11" shape-rendering="crispEdges"><rect x="0" y="2" width="13" height="9" fill="#e8c455" stroke="#16130d" stroke-width="1"/><rect x="0" y="0" width="6" height="3" fill="#e8c455" stroke="#16130d" stroke-width="1"/></svg>
+        <span>INFORMES</span>
+      </div>
+      <div class="file">
+        <svg width="40" height="34" viewBox="0 0 13 11" shape-rendering="crispEdges"><rect x="0" y="2" width="13" height="9" fill="#e8c455" stroke="#16130d" stroke-width="1"/><rect x="0" y="0" width="6" height="3" fill="#e8c455" stroke="#16130d" stroke-width="1"/></svg>
+        <span>DOCS</span>
+      </div>
+      <div class="file">
+        <svg width="40" height="34" viewBox="0 0 13 11" shape-rendering="crispEdges"><rect x="0" y="2" width="13" height="9" fill="#e8c455" stroke="#16130d" stroke-width="1"/><rect x="0" y="0" width="6" height="3" fill="#e8c455" stroke="#16130d" stroke-width="1"/></svg>
+        <span>AGENTES</span>
+      </div>
+      <div class="file">
+        <svg width="34" height="40" viewBox="0 0 11 13" shape-rendering="crispEdges"><rect x="0.5" y="0.5" width="10" height="12" fill="#f3ecd9" stroke="#16130d" stroke-width="1"/><rect x="2" y="3" width="7" height="1" fill="#16130d"/><rect x="2" y="5" width="7" height="1" fill="#16130d" opacity="0.5"/></svg>
+        <span>LEEME.TXT</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Ventana principal (delante) -->
+  <section class="window win-about">
+    <header class="titlebar">
+      <div class="dots"><span class="dot fill"></span><span class="dot"></span><span class="dot"></span></div>
+      <span class="title">sobre_mi.txt — Bloc de notas</span>
+      <span class="spacer"></span>
+    </header>
+    <div class="body">
+      <h1>Francisco Javier Ruiz García</h1>
+      <p class="meta">arquitecto_ia.exe · en ejecución desde 2023</p>
+      <p>
+        Construyo agentes de IA que trabajan mientras tú no miras: leen audios de
+        comerciales, actualizan CRMs, vigilan el BOE y contestan WhatsApps a las
+        tres de la mañana sin quejarse.
+      </p>
+      <p>
+        Código propio, sin conectores de terceros. Si algo se rompe, sé exactamente
+        dónde — porque lo escribí yo. Cada sistema que entrego lleva detrás una
+        decisión de arquitectura pensada para durar: integraciones directas con las
+        herramientas que ya usa el cliente, trazas para saber qué hizo el agente y
+        por qué, y un alcance acordado por escrito antes de la primera línea de código.
+      </p>
+      <figure class="dither-fig">
+        <div id="dither-holder"></div>
+        <figcaption>asistente_ventas.img — 1 bit, dithering Floyd–Steinberg</figcaption>
+      </figure>
+      <p>
+        Antes de dedicarme a esto pasé por el desarrollo de software a secas, y de
+        aquella época me quedó una manía: desconfiar de las demos. Una demo aguanta
+        cinco minutos delante de un cliente; un sistema en producción aguanta un
+        lunes por la mañana con veinte comerciales mandando audios a la vez. Diseño
+        para lo segundo. Por eso mis proyectos siguen funcionando meses después de
+        la entrega, sin que nadie tenga que reiniciar nada ni cruzar los dedos.
+      </p>
+      <p>
+        Fuera del horario laboral: me encontrarás leyendo papers que prometen
+        demasiado, probando modelos que prometen todavía más, y descartando el 90%
+        de ambos. El 10% restante es lo que acaba en producción.
+      </p>
+      <div class="sys">&gt; sistema estable. 6 proyectos en producción. 0 demos abandonadas.</div>
+    </div>
+  </section>
+
+  <!-- Barra inferior -->
+  <footer class="taskbar">
+    <span class="start">INICIO</span>
+    <span>fjrg_os v0.1</span>
+    <span class="clock" id="clock">--:--</span>
+  </footer>
+</div>
+
+  <!-- Filtro SVG para el tearing: feDisplacementMap con mapa de bandas.
+       Donde el mapa es neutro rgb(127,0,127) no hay desplazamiento; las bandas
+       con R=255 desplazan su franja a la derecha y con R=0 a la izquierda. -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <filter id="tearFilter" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+      <feFlood flood-color="rgb(127,0,127)" result="neutral"/>
+      <feFlood id="tear-band-a" flood-color="rgb(255,0,127)" x="0" width="100%" y="30%" height="0%" result="bandA"/>
+      <feFlood id="tear-band-b" flood-color="rgb(0,0,127)" x="0" width="100%" y="34%" height="0%" result="bandB"/>
+      <feMerge result="map">
+        <feMergeNode in="neutral"/>
+        <feMergeNode in="bandA"/>
+        <feMergeNode in="bandB"/>
+      </feMerge>
+      <feDisplacementMap in="SourceGraphic" in2="map" id="tear-disp" scale="0" xChannelSelector="R" yChannelSelector="B"/>
+    </filter>
+  </svg>
+
+  <!-- Overlay CRT -->
+  <canvas id="crt"></canvas>
+
+  <!-- Pantalla de arranque -->
+  <div id="boot"><span class="boot-name">Francisco Javier Ruiz García</span></div>
+
+  <!-- Marco fisico del monitor -->
+  <div id="bezel-tex" aria-hidden="true"></div>
+  <div id="bezel" aria-hidden="true"></div>
+  <div id="bezel-led" aria-hidden="true"></div>
+
+  <!-- Panel del test -->
+  <aside class="panel" id="panel">
+    <div class="row" style="justify-content: space-between;">
+      <span style="opacity:0.7;">panel de test</span>
+      <button id="panel-hide" style="font-family:inherit; font-size:11px; padding:4px 12px; border-radius:6px; border:1px solid #555; background:#2a2a2a; color:#ddd; cursor:pointer;">ocultar</button>
+    </div>
+    <div class="row">
+      <span id="status" style="flex:1; opacity:0.8;">estado: —</span>
+      <button id="btn-reset" style="font-family:inherit; font-size:11px; padding:4px 10px; border-radius:6px; border:1px solid #555; background:#2a2a2a; color:#ddd; cursor:pointer;">reiniciar</button>
+    </div>
+    <div class="hint">
+      Stack visual consolidado en PC y móvil (marco 30px solo en PC; ventanas
+      flotantes en ambos). Siguiente fase: lógica de ventanas.
+    </div>
+  </aside>
+  <button id="panel-toggle" title="Mostrar panel de test">⚙</button>
+
+<script>
+  // ----- Plegado del panel de debug -----
+  {
+    const panel = document.getElementById('panel');
+    const toggle = document.getElementById('panel-toggle');
+    document.getElementById('panel-hide').addEventListener('click', () => {
+      panel.classList.add('collapsed');
+      toggle.classList.add('visible');
+    });
+    toggle.addEventListener('click', () => {
+      panel.classList.remove('collapsed');
+      toggle.classList.remove('visible');
+    });
+  }
+</script>
+
+<script>
+  // ----- Pantalla de arranque -----
+  const boot = document.getElementById('boot');
+  let bootTimer;
+  function runBoot() {
+    clearTimeout(bootTimer);
+    boot.style.display = 'flex';
+    boot.classList.remove('play');
+    void boot.offsetWidth; // reinicia las animaciones CSS
+    boot.classList.add('play');
+    bootTimer = setTimeout(() => { boot.style.display = 'none'; }, 4100);
+  }
+  runBoot();
+
+  // ----- Imagen de proyecto con dithering 1-bit (Floyd-Steinberg) -----
+  (function ditherDemo() {
+    const holder = document.getElementById('dither-holder');
+    const img = new Image();
+    img.src = '../public/asistenteventas.png';
+    img.onload = () => {
+      const W = 200;
+      const H = Math.round((W * img.height) / img.width);
+      const c = document.createElement('canvas');
+      c.width = W;
+      c.height = H;
+      const cx = c.getContext('2d');
+      cx.drawImage(img, 0, 0, W, H);
+      let data;
+      try {
+        data = cx.getImageData(0, 0, W, H);
+      } catch (e) {
+        holder.textContent = '(abre la página por http, no file://, para ver el dithering)';
+        return;
+      }
+      const px = data.data;
+      const lum = new Float32Array(W * H);
+      for (let i = 0; i < W * H; i++) {
+        lum[i] = 0.299 * px[i * 4] + 0.587 * px[i * 4 + 1] + 0.114 * px[i * 4 + 2];
+      }
+      // tinta y papel de la paleta
+      const ink = [22, 19, 13];
+      const paper = [243, 236, 217];
+      for (let y = 0; y < H; y++) {
+        for (let x = 0; x < W; x++) {
+          const i = y * W + x;
+          const nv = lum[i] < 128 ? 0 : 255;
+          const err = lum[i] - nv;
+          if (x + 1 < W) lum[i + 1] += (err * 7) / 16;
+          if (y + 1 < H) {
+            if (x > 0) lum[i + W - 1] += (err * 3) / 16;
+            lum[i + W] += (err * 5) / 16;
+            if (x + 1 < W) lum[i + W + 1] += (err * 1) / 16;
+          }
+          const col = nv === 0 ? ink : paper;
+          px[i * 4] = col[0];
+          px[i * 4 + 1] = col[1];
+          px[i * 4 + 2] = col[2];
+          px[i * 4 + 3] = 255;
+        }
+      }
+      cx.putImageData(data, 0, 0);
+      holder.appendChild(c);
+    };
+    img.onerror = () => {
+      holder.textContent = '(no se pudo cargar ../public/asistenteventas.png)';
+    };
+  })();
+
+  // ----- Reloj -----
+  const clock = document.getElementById('clock');
+  function tick() {
+    clock.textContent = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+  }
+  tick();
+  setInterval(tick, 10000);
+
+  // ----- Valores ya fijados en rondas anteriores -----
+  const FIXED = {
+    bar: 0.55,      // fuerza de la banda
+    sweepDur: 2.7,  // duracion del barrido (velocidad 90)
+    tear: 0.3,      // intensidad del tearing
+    interval: 10,   // segundos entre pasadas
+    base: 0.1,      // scanlines + grano
+    curv: 0.35,     // curvatura del tubo
+    frame: 0.56,    // sombra de marco
+  };
+
+  // ----- Marco fisico: 30px consolidado en PC, ninguno en movil -----
+  const BEZEL = 30;
+  const mqMobile = window.matchMedia('(max-width: 700px)');
+  function bezelPx() {
+    return mqMobile.matches ? 0 : BEZEL;
+  }
+  mqMobile.addEventListener('change', () => drawGrid());
+
+  // ----- Textura del escritorio curvada (canvas 2D detras del DOM) -----
+  // La cuadricula se dibuja siguiendo la misma curvatura que el shader, de modo
+  // que el fondo si se dobla con el tubo; texto y ventanas quedan planos en la
+  // zona segura del centro.
+  const bgCanvas = document.getElementById('bg-grid');
+  const bgCtx = bgCanvas.getContext('2d');
+
+  // Inversa aproximada del warp del shader (3 iteraciones de punto fijo)
+  function invWarp(u, v, k) {
+    const tx = u * 2 - 1, ty = v * 2 - 1;
+    let x = tx, y = ty;
+    for (let i = 0; i < 3; i++) {
+      const ox = Math.abs(y) * k, oy = Math.abs(x) * k;
+      x = tx / (1 + ox * ox);
+      y = ty / (1 + oy * oy);
+    }
+    return [(x + 1) / 2, (y + 1) / 2];
+  }
+
+  function drawGrid() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+    const w = Math.round(innerWidth * dpr);
+    const h = Math.round(innerHeight * dpr);
+    bgCanvas.width = w;
+    bgCanvas.height = h;
+    // la cuadricula vive dentro del marco, igual que el tubo del shader
+    const inset = bezelPx() * dpr;
+    const iw = w - 2 * inset;
+    const ih = h - 2 * inset;
+    if (iw <= 0 || ih <= 0) return;
+    const k = FIXED.curv * 0.5;
+    const spacing = 46 * dpr;
+    bgCtx.clearRect(0, 0, w, h);
+    bgCtx.strokeStyle = 'rgba(15, 45, 20, 0.14)';
+    bgCtx.lineWidth = 1 * dpr;
+
+    // lineas verticales curvadas
+    for (let gx = spacing / 2; gx < iw; gx += spacing) {
+      bgCtx.beginPath();
+      for (let i = 0; i <= 40; i++) {
+        const [px, py] = invWarp(gx / iw, i / 40, k);
+        const sx = inset + px * iw, sy = inset + py * ih;
+        i === 0 ? bgCtx.moveTo(sx, sy) : bgCtx.lineTo(sx, sy);
+      }
+      bgCtx.stroke();
+    }
+    // lineas horizontales curvadas
+    for (let gy = spacing / 2; gy < ih; gy += spacing) {
+      bgCtx.beginPath();
+      for (let i = 0; i <= 40; i++) {
+        const [px, py] = invWarp(i / 40, gy / ih, k);
+        const sx = inset + px * iw, sy = inset + py * ih;
+        i === 0 ? bgCtx.moveTo(sx, sy) : bgCtx.lineTo(sx, sy);
+      }
+      bgCtx.stroke();
+    }
+  }
+  drawGrid();
+  window.addEventListener('resize', drawGrid);
+
+  // ----- CRT WebGL -----
+  const desk = document.getElementById('desk');
+  const canvas = document.getElementById('crt');
+  const gl = canvas.getContext('webgl', { alpha: true, premultipliedAlpha: true });
+
+  if (gl) {
+    const vsSrc = `
+      attribute vec2 p;
+      void main() { gl_Position = vec4(p, 0.0, 1.0); }
+    `;
+    const fsSrc = `
+      precision mediump float;
+      uniform vec2 u_res;
+      uniform float u_time;
+      uniform float u_base;   // scanlines + grano
+      uniform float u_bar;    // fuerza de la banda de rodadura
+      uniform float u_barPos; // posicion vertical de la banda, 0 abajo - 1 arriba
+      uniform float u_curv;   // curvatura del tubo (esquinas negras)
+      uniform float u_frame;  // sombra de marco que se adelgaza hacia el centro
+      uniform float u_inset;  // grosor del marco fisico en pixeles de canvas
+
+      float hash(vec2 p) {
+        return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
+      }
+
+      // Deformacion de tubo clasica (Babylon/libretro): distorsion cubica
+      // que empuja las coordenadas hacia fuera cerca de los bordes.
+      vec2 warp(vec2 uv, float k) {
+        uv = uv * 2.0 - 1.0;
+        vec2 offset = abs(uv.yx) * k;
+        uv = uv + uv * offset * offset;
+        return uv * 0.5 + 0.5;
+      }
+
+      void main() {
+        // el tubo vive dentro del marco fisico: coordenadas sobre el hueco
+        vec2 uv = (gl_FragCoord.xy - vec2(u_inset)) / (u_res - 2.0 * u_inset);
+
+        // ---- Geometria del tubo ----
+        vec2 wuv = warp(uv, u_curv * 0.5);
+        // distancia al borde mas cercano en el espacio curvado
+        vec2 q = min(wuv, 1.0 - wuv);
+        // esquinas redondeadas: fuera del radio -> negro sin pixeles
+        float r = 0.02 + 0.06 * u_curv;
+        float dcorner = length(max(vec2(r) - q, 0.0));
+        float mask = 1.0 - smoothstep(r - 0.005, r, dcorner);
+
+        // ---- Capa base (dibujada en el espacio curvado: las scanlines
+        //      se arquean hacia los bordes como en un tubo real) ----
+        float scan = 0.5 + 0.5 * sin(wuv.y * u_res.y * 2.0943951);
+        float darken = 0.26 * u_base * (1.0 - scan);
+
+        float g = hash(uv * 917.0 + fract(u_time) * 61.0);
+        darken += 0.05 * u_base * (g - 0.5);
+
+        darken *= 1.0 + 0.04 * sin(u_time * 87.0);
+
+        // ---- Sombra de marco: fuerte junto al borde curvado,
+        //      se adelgaza hacia el centro ----
+        float edgeDist = min(q.x, q.y);
+        float shw = 0.04 + 0.18 * u_frame;
+        darken += 0.6 * u_frame * (1.0 - smoothstep(0.0, shw, edgeDist));
+
+        // ---- Banda de rodadura (sube por la pantalla, curvada) ----
+        float d = wuv.y - u_barPos;
+        // nucleo oscuro de la banda
+        float core = exp(-d * d / 0.0028);
+        darken += 0.30 * u_bar * core;
+        // borde brillante justo encima del nucleo
+        float e = d - 0.055;
+        float glowEdge = exp(-e * e / 0.0004);
+        float lighten = 0.10 * u_bar * glowEdge;
+        // ruido extra dentro de la banda (la "suciedad" del tearing)
+        darken += 0.10 * u_bar * core * (hash(uv * 431.0 + u_time * 97.0) - 0.5);
+
+        // ---- Grille RGB en la parte oscura ----
+        float m = mod(gl_FragCoord.x + core * u_bar * 3.0, 3.0);
+        vec3 stripe = vec3(step(m, 1.0), step(1.0, m) * step(m, 2.0), step(2.0, m));
+
+        float net = lighten - darken;
+        float a = clamp(abs(net), 0.0, 0.85);
+        vec3 col = net > 0.0 ? vec3(1.0) : stripe * 0.30;
+
+        // Fuera del tubo curvado: negro opaco, ahi no hay pixeles
+        gl_FragColor = mix(vec4(0.0, 0.0, 0.0, 1.0), vec4(col * a, a), mask);
+      }
+    `;
+
+    function compile(type, src) {
+      const s = gl.createShader(type);
+      gl.shaderSource(s, src);
+      gl.compileShader(s);
+      if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
+        console.error(gl.getShaderInfoLog(s));
+      }
+      return s;
+    }
+
+    const prog = gl.createProgram();
+    gl.attachShader(prog, compile(gl.VERTEX_SHADER, vsSrc));
+    gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, fsSrc));
+    gl.linkProgram(prog);
+    gl.useProgram(prog);
+
+    const buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+    const loc = gl.getAttribLocation(prog, 'p');
+    gl.enableVertexAttribArray(loc);
+    gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+
+    const uRes = gl.getUniformLocation(prog, 'u_res');
+    const uTime = gl.getUniformLocation(prog, 'u_time');
+    const uBase = gl.getUniformLocation(prog, 'u_base');
+    const uBar = gl.getUniformLocation(prog, 'u_bar');
+    const uBarPos = gl.getUniformLocation(prog, 'u_barPos');
+    const uCurv = gl.getUniformLocation(prog, 'u_curv');
+    const uFrame = gl.getUniformLocation(prog, 'u_frame');
+    const uInset = gl.getUniformLocation(prog, 'u_inset');
+
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+
+    function resize() {
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+      canvas.width = Math.round(innerWidth * dpr);
+      canvas.height = Math.round(innerHeight * dpr);
+      gl.viewport(0, 0, canvas.width, canvas.height);
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    // ----- Bucle: barrido -> espera (intervalo) -> barrido, con parada total -----
+    const statusEl = document.getElementById('status');
+    let clockStart = performance.now(); // reloj de la "sesion" (para la parada)
+    let state = 'sweep';                // 'sweep' | 'wait' | 'stopped'
+    let stateStart = clockStart;
+    let tearPoints = [];                // alturas donde "engancha" la imagen
+
+    function newTearPoints() {
+      const n = 1 + Math.floor(Math.random() * 2);
+      tearPoints = Array.from({ length: n }, () => 0.15 + Math.random() * 0.7);
+    }
+    newTearPoints();
+
+    // Elementos del filtro SVG de tearing
+    const bandA = document.getElementById('tear-band-a');
+    const bandB = document.getElementById('tear-band-b');
+    const disp = document.getElementById('tear-disp');
+    let tearOn = false;
+
+    function setTear(pos, strength) {
+      // pos viene con 0 = abajo; el filtro mide desde arriba
+      const yTop = (1 - pos) * 100;
+      const hA = 2.5 + (pos * 977 % 1) * 3;   // alturas pseudoaleatorias estables
+      const hB = 1.5 + (pos * 449 % 1) * 2.5;
+      bandA.setAttribute('y', (yTop - hA).toFixed(2) + '%');
+      bandA.setAttribute('height', hA.toFixed(2) + '%');
+      bandB.setAttribute('y', yTop.toFixed(2) + '%');
+      bandB.setAttribute('height', hB.toFixed(2) + '%');
+      disp.setAttribute('scale', (strength * FIXED.tear * 36).toFixed(1));
+      if (!tearOn) {
+        desk.style.filter = 'url(#tearFilter)';
+        tearOn = true;
+      }
+    }
+
+    function clearTear() {
+      if (tearOn) {
+        desk.style.filter = '';
+        disp.setAttribute('scale', '0');
+        tearOn = false;
+      }
+    }
+
+    document.getElementById('btn-reset').addEventListener('click', () => {
+      clockStart = performance.now();
+      state = 'sweep';
+      stateStart = clockStart;
+      newTearPoints();
+      runBoot(); // repite tambien la secuencia de arranque
+    });
+
+    function frame() {
+      const now = performance.now();
+      const inState = (now - stateStart) / 1000;   // tiempo en el estado actual
+
+      let pos = -1;   // fuera de pantalla = banda invisible
+      let tearStrength = 0;
+      let tearPos = 0;
+
+      if (state === 'sweep') {
+        const p = inState / FIXED.sweepDur;
+        if (p >= 1) {
+          state = 'wait';
+          stateStart = now;
+        } else {
+          pos = p;
+          // Tearing solo durante el barrido, al cruzar los puntos de enganche:
+          // la imagen se parte en franjas desplazadas donde esta la banda
+          for (const tp of tearPoints) {
+            const dist = Math.abs(pos - tp);
+            if (dist < 0.035) {
+              const s = 1 - dist / 0.035;
+              if (s > tearStrength) {
+                tearStrength = s;
+                tearPos = pos;
+              }
+            }
+          }
+        }
+      } else if (state === 'wait') {
+        if (inState >= FIXED.interval) {
+          state = 'sweep';
+          stateStart = now;
+          newTearPoints();
+        }
+      }
+
+      if (tearStrength > 0.01) {
+        setTear(tearPos, tearStrength);
+      } else {
+        clearTear();
+      }
+
+      const labels = {
+        sweep: 'barriendo',
+        wait: `espera (${Math.max(0, FIXED.interval - inState).toFixed(0)}s)`,
+      };
+      statusEl.textContent = 'estado: ' + labels[state];
+
+      gl.clearColor(0, 0, 0, 0);
+      gl.clear(gl.COLOR_BUFFER_BIT);
+      gl.uniform2f(uRes, canvas.width, canvas.height);
+      gl.uniform1f(uTime, (now % 1e6) / 1000);
+      gl.uniform1f(uBase, FIXED.base);
+      gl.uniform1f(uBar, state === 'sweep' ? FIXED.bar : 0.0);
+      gl.uniform1f(uBarPos, pos);
+      gl.uniform1f(uCurv, FIXED.curv);
+      gl.uniform1f(uFrame, FIXED.frame);
+      gl.uniform1f(uInset, bezelPx() * Math.min(window.devicePixelRatio || 1, 1.5));
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+      requestAnimationFrame(frame);
+    }
+    frame();
+  } else {
+    canvas.style.display = 'none';
+  }
+</script>
+</body>
+</html>

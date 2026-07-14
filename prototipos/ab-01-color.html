@@ -1,0 +1,542 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AB-01 · Dominante de color — azul noche vs verde</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&family=Silkscreen:wght@400;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --paper: #f3ecd9;
+    --paper-2: #eae1c8;
+    --ink: #16130d;
+    --shadow: rgba(0, 0, 0, 0.45);
+    --border-w: 3px;
+    --radius: 10px;
+  }
+
+  /* ---- Variante A: azul noche ---- */
+  body[data-variant='a'] {
+    --desk: #0b1020;
+    --desk-deco: rgba(214, 226, 255, 0.28);
+    --icon-label: #dbe4ff;
+    --icon-label-bg: rgba(11, 16, 32, 0.65);
+    --accent: #7aa2ff;
+  }
+
+  /* ---- Variante B: verde saturado ---- */
+  body[data-variant='b'] {
+    --desk: #59b463;
+    --desk-deco: rgba(20, 40, 22, 0.35);
+    --icon-label: #14281a;
+    --icon-label-bg: rgba(243, 236, 217, 0.75);
+    --accent: #1e5c2e;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--desk);
+    color: var(--ink);
+    overflow: hidden;
+    transition: background 0.25s ease;
+    user-select: none;
+  }
+
+  /* ================= Decoración de escritorio ================= */
+  .desk-deco { position: fixed; inset: 0; pointer-events: none; color: var(--desk-deco); }
+  .desk-deco .bits {
+    position: absolute;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.35em;
+    writing-mode: vertical-rl;
+    opacity: 0.9;
+  }
+  .desk-deco .cross {
+    position: absolute;
+    font-family: 'Silkscreen', monospace;
+    font-size: 18px;
+  }
+  .desk-deco .frame {
+    position: absolute;
+    border: 1px dashed currentColor;
+    opacity: 0.6;
+  }
+
+  /* ================= Iconos de escritorio ================= */
+  .icons {
+    position: fixed;
+    top: 28px;
+    left: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 26px;
+    z-index: 2;
+  }
+  .icon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    width: 92px;
+    cursor: pointer;
+  }
+  .icon svg { image-rendering: pixelated; }
+  .icon .label {
+    font-family: 'Silkscreen', monospace;
+    font-size: 10px;
+    color: var(--icon-label);
+    background: var(--icon-label-bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+  .icon:hover svg { transform: translateY(-2px); }
+
+  /* ================= Ventanas ================= */
+  .window {
+    position: fixed;
+    background: var(--paper);
+    border: var(--border-w) solid var(--ink);
+    border-radius: var(--radius);
+    box-shadow: 9px 9px 0 var(--shadow);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .titlebar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border-bottom: var(--border-w) solid var(--ink);
+    background: var(--paper);
+  }
+  .titlebar .dots { display: flex; gap: 7px; }
+  .titlebar .dot {
+    width: 13px; height: 13px;
+    border: 2.5px solid var(--ink);
+    border-radius: 50%;
+  }
+  .titlebar .dot.fill { background: var(--ink); }
+  .titlebar .title {
+    flex: 1;
+    text-align: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 0.02em;
+  }
+  .titlebar .spacer { width: 53px; }
+
+  .win-about {
+    top: 12vh; left: 50%;
+    transform: translateX(-38%);
+    width: min(560px, 86vw);
+    z-index: 3;
+  }
+  .win-about .body { padding: 22px 26px 26px; line-height: 1.55; font-size: 15px; }
+  .win-about h1 {
+    margin: 0 0 4px;
+    font-size: 22px;
+    font-weight: 900;
+    letter-spacing: -0.01em;
+  }
+  .win-about .meta {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    opacity: 0.65;
+    margin-bottom: 14px;
+  }
+  .win-about p { margin: 0 0 12px; }
+  .win-about .sys {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12.5px;
+    background: var(--paper-2);
+    border: 2px solid var(--ink);
+    border-radius: 6px;
+    padding: 9px 12px;
+    margin-top: 6px;
+  }
+
+  .win-explorer {
+    top: 34vh; left: 8vw;
+    width: min(360px, 70vw);
+    z-index: 2;
+  }
+  .win-explorer .body {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px 8px;
+    padding: 22px 16px;
+  }
+  .win-explorer .file {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .win-explorer .file span {
+    font-family: 'Silkscreen', monospace;
+    font-size: 9px;
+  }
+
+  /* ================= Barra inferior ================= */
+  .taskbar {
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    height: 44px;
+    background: var(--paper);
+    border-top: var(--border-w) solid var(--ink);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 0 16px;
+    z-index: 4;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+  }
+  .taskbar .start {
+    font-family: 'Silkscreen', monospace;
+    font-size: 11px;
+    border: 2.5px solid var(--ink);
+    border-radius: 6px;
+    padding: 4px 12px;
+    background: var(--paper-2);
+    cursor: pointer;
+  }
+  .taskbar .clock { margin-left: auto; font-weight: 600; }
+
+  /* ================= Overlay CRT ================= */
+  #crt {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9000;
+  }
+
+  /* ================= Panel de control del test ================= */
+  .panel {
+    position: fixed;
+    right: 14px;
+    bottom: 58px;
+    z-index: 9500;
+    background: #1c1c1c;
+    color: #eee;
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 230px;
+    opacity: 0.94;
+  }
+  .panel .row { display: flex; align-items: center; gap: 8px; }
+  .panel button {
+    flex: 1;
+    font-family: inherit;
+    font-size: 12px;
+    padding: 6px 0;
+    border-radius: 6px;
+    border: 1px solid #555;
+    background: #2a2a2a;
+    color: #ddd;
+    cursor: pointer;
+  }
+  .panel button.active { background: #e8e0c8; color: #111; border-color: #e8e0c8; font-weight: 700; }
+  .panel input[type='range'] { flex: 1; accent-color: #e8e0c8; }
+  .panel .hint { opacity: 0.55; font-size: 10.5px; line-height: 1.4; }
+</style>
+</head>
+<body data-variant="a">
+
+  <!-- Decoración del escritorio (línea fina, sabor cyberpunk) -->
+  <div class="desk-deco" aria-hidden="true">
+    <span class="bits" style="top: 6%; right: 12%;">0110100101</span>
+    <span class="bits" style="top: 40%; right: 5%;">1010011010</span>
+    <span class="bits" style="bottom: 14%; left: 16%;">0011010110</span>
+    <span class="cross" style="top: 12%; right: 28%;">×</span>
+    <span class="cross" style="bottom: 22%; right: 18%;">×</span>
+    <span class="cross" style="top: 58%; left: 3%;">×</span>
+    <div class="frame" style="top: 8%; right: 6%; width: 130px; height: 70px;"></div>
+    <div class="frame" style="bottom: 12%; right: 30%; width: 90px; height: 90px;"></div>
+  </div>
+
+  <!-- Iconos -->
+  <nav class="icons">
+    <div class="icon" title="Trabajos">
+      <svg width="52" height="44" viewBox="0 0 13 11" shape-rendering="crispEdges">
+        <rect x="0" y="2" width="13" height="9" fill="#e8c455" stroke="#16130d" stroke-width="1"/>
+        <rect x="0" y="0" width="6" height="3" fill="#e8c455" stroke="#16130d" stroke-width="1"/>
+        <rect x="1" y="4" width="11" height="1" fill="#16130d" opacity="0.25"/>
+      </svg>
+      <span class="label">TRABAJOS</span>
+    </div>
+    <div class="icon" title="Proyectos">
+      <svg width="52" height="44" viewBox="0 0 13 11" shape-rendering="crispEdges">
+        <rect x="0" y="2" width="13" height="9" fill="#e8c455" stroke="#16130d" stroke-width="1"/>
+        <rect x="0" y="0" width="6" height="3" fill="#e8c455" stroke="#16130d" stroke-width="1"/>
+        <rect x="1" y="4" width="11" height="1" fill="#16130d" opacity="0.25"/>
+      </svg>
+      <span class="label">PROYECTOS</span>
+    </div>
+    <div class="icon" title="Sobre mí">
+      <svg width="44" height="52" viewBox="0 0 11 13" shape-rendering="crispEdges">
+        <rect x="0.5" y="0.5" width="10" height="12" fill="#f3ecd9" stroke="#16130d" stroke-width="1"/>
+        <rect x="2" y="3" width="7" height="1" fill="#16130d"/>
+        <rect x="2" y="5" width="7" height="1" fill="#16130d" opacity="0.5"/>
+        <rect x="2" y="7" width="7" height="1" fill="#16130d" opacity="0.5"/>
+        <rect x="2" y="9" width="4" height="1" fill="#16130d" opacity="0.5"/>
+      </svg>
+      <span class="label">SOBRE_MI.TXT</span>
+    </div>
+    <div class="icon" title="Contacto">
+      <svg width="52" height="40" viewBox="0 0 13 10" shape-rendering="crispEdges">
+        <rect x="0.5" y="0.5" width="12" height="9" fill="#f3ecd9" stroke="#16130d" stroke-width="1"/>
+        <path d="M1 1 L6.5 6 L12 1" fill="none" stroke="#16130d" stroke-width="1"/>
+      </svg>
+      <span class="label">CONTACTO</span>
+    </div>
+  </nav>
+
+  <!-- Ventana explorador (detrás) -->
+  <section class="window win-explorer">
+    <header class="titlebar">
+      <div class="dots"><span class="dot fill"></span><span class="dot"></span><span class="dot"></span></div>
+      <span class="title">proyectos/</span>
+      <span class="spacer"></span>
+    </header>
+    <div class="body">
+      <div class="file">
+        <svg width="40" height="34" viewBox="0 0 13 11" shape-rendering="crispEdges"><rect x="0" y="2" width="13" height="9" fill="#e8c455" stroke="#16130d" stroke-width="1"/><rect x="0" y="0" width="6" height="3" fill="#e8c455" stroke="#16130d" stroke-width="1"/></svg>
+        <span>VENTAS</span>
+      </div>
+      <div class="file">
+        <svg width="40" height="34" viewBox="0 0 13 11" shape-rendering="crispEdges"><rect x="0" y="2" width="13" height="9" fill="#e8c455" stroke="#16130d" stroke-width="1"/><rect x="0" y="0" width="6" height="3" fill="#e8c455" stroke="#16130d" stroke-width="1"/></svg>
+        <span>RESERVAS</span>
+      </div>
+      <div class="file">
+        <svg width="40" height="34" viewBox="0 0 13 11" shape-rendering="crispEdges"><rect x="0" y="2" width="13" height="9" fill="#e8c455" stroke="#16130d" stroke-width="1"/><rect x="0" y="0" width="6" height="3" fill="#e8c455" stroke="#16130d" stroke-width="1"/></svg>
+        <span>INFORMES</span>
+      </div>
+      <div class="file">
+        <svg width="40" height="34" viewBox="0 0 13 11" shape-rendering="crispEdges"><rect x="0" y="2" width="13" height="9" fill="#e8c455" stroke="#16130d" stroke-width="1"/><rect x="0" y="0" width="6" height="3" fill="#e8c455" stroke="#16130d" stroke-width="1"/></svg>
+        <span>DOCS</span>
+      </div>
+      <div class="file">
+        <svg width="40" height="34" viewBox="0 0 13 11" shape-rendering="crispEdges"><rect x="0" y="2" width="13" height="9" fill="#e8c455" stroke="#16130d" stroke-width="1"/><rect x="0" y="0" width="6" height="3" fill="#e8c455" stroke="#16130d" stroke-width="1"/></svg>
+        <span>AGENTES</span>
+      </div>
+      <div class="file">
+        <svg width="34" height="40" viewBox="0 0 11 13" shape-rendering="crispEdges"><rect x="0.5" y="0.5" width="10" height="12" fill="#f3ecd9" stroke="#16130d" stroke-width="1"/><rect x="2" y="3" width="7" height="1" fill="#16130d"/><rect x="2" y="5" width="7" height="1" fill="#16130d" opacity="0.5"/></svg>
+        <span>LEEME.TXT</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Ventana principal (delante) -->
+  <section class="window win-about">
+    <header class="titlebar">
+      <div class="dots"><span class="dot fill"></span><span class="dot"></span><span class="dot"></span></div>
+      <span class="title">sobre_mi.txt — Bloc de notas</span>
+      <span class="spacer"></span>
+    </header>
+    <div class="body">
+      <h1>Francisco Javier Ruiz García</h1>
+      <p class="meta">arquitecto_ia.exe · en ejecución desde 2023</p>
+      <p>
+        Construyo agentes de IA que trabajan mientras tú no miras: leen audios de
+        comerciales, actualizan CRMs, vigilan el BOE y contestan WhatsApps a las
+        tres de la mañana sin quejarse.
+      </p>
+      <p>
+        Código propio, sin conectores de terceros. Si algo se rompe, sé exactamente
+        dónde — porque lo escribí yo.
+      </p>
+      <div class="sys">&gt; sistema estable. 6 proyectos en producción. 0 demos abandonadas.</div>
+    </div>
+  </section>
+
+  <!-- Barra inferior -->
+  <footer class="taskbar">
+    <span class="start">INICIO</span>
+    <span>fjrg_os v0.1</span>
+    <span class="clock" id="clock">--:--</span>
+  </footer>
+
+  <!-- Overlay CRT -->
+  <canvas id="crt"></canvas>
+
+  <!-- Panel del test -->
+  <aside class="panel">
+    <div class="row">
+      <button id="btn-a" class="active">A · noche</button>
+      <button id="btn-b">B · verde</button>
+    </div>
+    <div class="row">
+      <span>CRT</span>
+      <input id="crt-slider" type="range" min="0" max="100" value="45" />
+      <span id="crt-value" style="width:28px; text-align:right;">45</span>
+    </div>
+    <div class="hint">Teclas: 1 / 2 cambian variante. Flechas ↑↓ ajustan CRT.</div>
+  </aside>
+
+<script>
+  // ----- Variantes -----
+  const btnA = document.getElementById('btn-a');
+  const btnB = document.getElementById('btn-b');
+  function setVariant(v) {
+    document.body.dataset.variant = v;
+    btnA.classList.toggle('active', v === 'a');
+    btnB.classList.toggle('active', v === 'b');
+  }
+  btnA.addEventListener('click', () => setVariant('a'));
+  btnB.addEventListener('click', () => setVariant('b'));
+
+  // ----- Reloj -----
+  const clock = document.getElementById('clock');
+  function tick() {
+    clock.textContent = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+  }
+  tick();
+  setInterval(tick, 10000);
+
+  // ----- CRT WebGL -----
+  const canvas = document.getElementById('crt');
+  const slider = document.getElementById('crt-slider');
+  const valueEl = document.getElementById('crt-value');
+  let intensity = slider.value / 100;
+
+  slider.addEventListener('input', () => {
+    intensity = slider.value / 100;
+    valueEl.textContent = slider.value;
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === '1') setVariant('a');
+    if (e.key === '2') setVariant('b');
+    if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+      e.preventDefault();
+      slider.value = Math.max(0, Math.min(100, Number(slider.value) + (e.key === 'ArrowUp' ? 5 : -5)));
+      slider.dispatchEvent(new Event('input'));
+    }
+  });
+
+  const gl = canvas.getContext('webgl', { alpha: true, premultipliedAlpha: true });
+  if (gl) {
+    const vsSrc = `
+      attribute vec2 p;
+      void main() { gl_Position = vec4(p, 0.0, 1.0); }
+    `;
+    const fsSrc = `
+      precision mediump float;
+      uniform vec2 u_res;
+      uniform float u_time;
+      uniform float u_intensity;
+
+      float hash(vec2 p) {
+        return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
+      }
+
+      void main() {
+        vec2 uv = gl_FragCoord.xy / u_res;
+        float I = u_intensity;
+
+        // Scanlines horizontales (periodo ~3px)
+        float scan = 0.5 + 0.5 * sin(gl_FragCoord.y * 2.0943951);
+        float darken = 0.28 * I * (1.0 - scan);
+
+        // Vineta
+        vec2 c = uv - 0.5;
+        c.x *= u_res.x / u_res.y;
+        darken += 0.38 * I * smoothstep(0.55, 1.15, length(c));
+
+        // Grano animado
+        float g = hash(uv * 917.0 + fract(u_time) * 61.0);
+        darken += 0.05 * I * (g - 0.5);
+
+        // Flicker global sutil
+        darken *= 1.0 + 0.05 * sin(u_time * 87.0);
+
+        // Banda de refresco que recorre la pantalla (aclara)
+        float bp = fract(uv.y + u_time * 0.045);
+        float band = smoothstep(0.0, 0.15, bp) * smoothstep(0.35, 0.15, bp);
+        float lighten = 0.04 * I * band;
+
+        // Grille RGB: tinte cromatico en columnas de 3px
+        float m = mod(gl_FragCoord.x, 3.0);
+        vec3 stripe = vec3(step(m, 1.0), step(1.0, m) * step(m, 2.0), step(2.0, m));
+
+        float net = lighten - darken;
+        float a = clamp(abs(net), 0.0, 0.85);
+        vec3 col = net > 0.0 ? vec3(1.0) : stripe * 0.30;
+
+        gl_FragColor = vec4(col * a, a);
+      }
+    `;
+
+    function compile(type, src) {
+      const s = gl.createShader(type);
+      gl.shaderSource(s, src);
+      gl.compileShader(s);
+      if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
+        console.error(gl.getShaderInfoLog(s));
+      }
+      return s;
+    }
+
+    const prog = gl.createProgram();
+    gl.attachShader(prog, compile(gl.VERTEX_SHADER, vsSrc));
+    gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, fsSrc));
+    gl.linkProgram(prog);
+    gl.useProgram(prog);
+
+    const buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+    const loc = gl.getAttribLocation(prog, 'p');
+    gl.enableVertexAttribArray(loc);
+    gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+
+    const uRes = gl.getUniformLocation(prog, 'u_res');
+    const uTime = gl.getUniformLocation(prog, 'u_time');
+    const uInt = gl.getUniformLocation(prog, 'u_intensity');
+
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+
+    function resize() {
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+      canvas.width = Math.round(innerWidth * dpr);
+      canvas.height = Math.round(innerHeight * dpr);
+      gl.viewport(0, 0, canvas.width, canvas.height);
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    const t0 = performance.now();
+    function frame() {
+      gl.clearColor(0, 0, 0, 0);
+      gl.clear(gl.COLOR_BUFFER_BIT);
+      gl.uniform2f(uRes, canvas.width, canvas.height);
+      gl.uniform1f(uTime, (performance.now() - t0) / 1000);
+      gl.uniform1f(uInt, intensity);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+      requestAnimationFrame(frame);
+    }
+    frame();
+  } else {
+    canvas.style.display = 'none';
+  }
+</script>
+</body>
+</html>
