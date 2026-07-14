@@ -1,0 +1,46 @@
+---
+interface Props {
+  kind: 'carpeta' | 'doc' | 'sobre';
+  size?: 'lg' | 'sm';
+}
+
+const { kind, size = 'lg' } = Astro.props;
+
+// dimensiones en px por tipo y tamaño (los viewBox son la rejilla pixel-art)
+const dims = {
+  carpeta: { lg: [52, 44], sm: [40, 34] },
+  doc: { lg: [44, 52], sm: [34, 40] },
+  sobre: { lg: [52, 40], sm: [40, 31] },
+} as const;
+
+const [w, h] = dims[kind][size];
+---
+
+{
+  kind === 'carpeta' && (
+    <svg width={w} height={h} viewBox="0 0 13 11" shape-rendering="crispEdges" aria-hidden="true">
+      <rect x="0" y="2" width="13" height="9" fill="#e8c455" stroke="#16130d" stroke-width="1" />
+      <rect x="0" y="0" width="6" height="3" fill="#e8c455" stroke="#16130d" stroke-width="1" />
+      <rect x="1" y="4" width="11" height="1" fill="#16130d" opacity="0.25" />
+    </svg>
+  )
+}
+{
+  kind === 'doc' && (
+    <svg width={w} height={h} viewBox="0 0 11 13" shape-rendering="crispEdges" aria-hidden="true">
+      <rect x="0.5" y="0.5" width="10" height="12" fill="#f3ecd9" stroke="#16130d" stroke-width="1" />
+      <rect x="2" y="3" width="7" height="1" fill="#16130d" />
+      <rect x="2" y="5" width="7" height="1" fill="#16130d" opacity="0.5" />
+      <rect x="2" y="7" width="7" height="1" fill="#16130d" opacity="0.5" />
+      <rect x="2" y="9" width="4" height="1" fill="#16130d" opacity="0.5" />
+    </svg>
+  )
+}
+{
+  kind === 'sobre' && (
+    <svg width={w} height={h} viewBox="0 0 13 10" shape-rendering="crispEdges" aria-hidden="true">
+      <rect x="0.5" y="0.5" width="12" height="9" fill="#f3ecd9" stroke="#16130d" stroke-width="1" />
+      <path d="M1 1 L6.5 6 L12 1" fill="none" stroke="#16130d" stroke-width="1" />
+    </svg>
+  )
+}

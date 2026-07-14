@@ -13,7 +13,7 @@ export const site = {
   linkedin: 'https://www.linkedin.com/in/francisco-javier-ruiz-garcía-49950a182/',
   /** Texto corto para meta description y SEO */
   description:
-    'Automatización de procesos e IA a medida. Agentes robustos, RAG, MCP y APIs — sin depender de plataformas de terceros.',
+    'Arquitecto de IA: agentes y automatización en producción. RAG, MCP y APIs con código propio — integrado con tus herramientas actuales.',
 } as const;
 
 export type SiteConfig = typeof site;

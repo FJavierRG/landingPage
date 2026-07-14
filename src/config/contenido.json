@@ -1,0 +1,122 @@
+{
+  "_ayuda": "Todos los textos de la web viven aquí. Edita y guarda: no hace falta tocar código. Los datos de contacto (email, teléfono, LinkedIn) se editan en site.ts.",
+
+  "arranque": {
+    "nombre": "Francisco Javier Ruiz García"
+  },
+
+  "barraTareas": {
+    "inicio": "INICIO",
+    "sistema": "fjrg_os v1.0"
+  },
+
+  "ventanas": {
+    "trabajos": {
+      "etiquetaIcono": "TRABAJOS",
+      "titulo": "trabajos.log",
+      "entradas": [
+        { "periodo": "2024—hoy", "texto": "Arquitecto de sistemas de IA · freelance" },
+        { "periodo": "2023—2024", "texto": "Agentes y RAG en producción · cliente de formación" },
+        { "periodo": "2023", "texto": "Automatización de informes · consultora" },
+        { "periodo": "<2023", "texto": "Desarrollo de software · varios" }
+      ]
+    },
+
+    "proyectos": {
+      "etiquetaIcono": "PROYECTOS",
+      "titulo": "proyectos/",
+      "items": [
+        {
+          "id": "ventas",
+          "etiquetaArchivo": "VENTAS",
+          "titulo": "Asistente de ventas",
+          "parrafos": [
+            "El comercial registra la actividad por audio en Telegram y la IA actualiza HubSpot y el pipeline de ventas sin intervención manual.",
+            "Integración directa con el CRM: menos tiempo en data entry, más tiempo vendiendo."
+          ],
+          "imagen": "asistenteventas.png",
+          "alt": "Diagrama del asistente de ventas: audio por Telegram, la IA procesa e integra en HubSpot"
+        },
+        {
+          "id": "documentacion",
+          "etiquetaArchivo": "DOCS",
+          "titulo": "Documentación viva",
+          "parrafos": [
+            "Temario siempre al día ante cambios en el BOE, sin cargar a los profesores.",
+            "La IA analiza nuevas publicaciones, detecta qué temas se ven afectados, propone los cambios y — tras revisión humana — los aplica con histórico completo."
+          ],
+          "imagen": null,
+          "alt": null
+        },
+        {
+          "id": "formacion",
+          "etiquetaArchivo": "FORMACION",
+          "titulo": "Chatbots de formación interna",
+          "parrafos": [
+            "Dudas del día a día resueltas en segundos vía Telegram, sin depender de un mentor.",
+            "Los juniors obtienen respuestas inmediatas sobre procedimientos, compañeros y documentación, sin la fricción de preguntar lo básico en persona."
+          ],
+          "imagen": "chatformacion.png",
+          "alt": "Chatbot de formación interna respondiendo consultas"
+        },
+        {
+          "id": "informes",
+          "etiquetaArchivo": "INFORMES",
+          "titulo": "Informes post-reunión",
+          "parrafos": [
+            "De transcripciones de 70 páginas a informes de 10 en minutos, con la maqueta y los criterios de redacción del cliente.",
+            "El sistema sanitiza el contenido, envía los informes por email y recuerda las siguientes sesiones."
+          ],
+          "imagen": "sistemainformes.png",
+          "alt": "Flujo del sistema de informes: transcripción, procesamiento con IA, envío por email"
+        },
+        {
+          "id": "reservas",
+          "etiquetaArchivo": "RESERVAS",
+          "titulo": "Chatbots de reservas",
+          "parrafos": [
+            "Consultas de horarios, tarifas y precios en WhatsApp resueltas al instante, sin interrumpir al equipo.",
+            "Sincronizado con el calendario de citas y la documentación de servicios: un Excel gestionado por la IA cubre el 100% de las preguntas habituales."
+          ],
+          "imagen": "chatReservas.png",
+          "alt": "Chatbot de reservas consultando calendario, web y documentación"
+        },
+        {
+          "id": "comunicacion",
+          "etiquetaArchivo": "AGENTES",
+          "titulo": "Agentes de comunicación",
+          "parrafos": [
+            "Publicaciones en redes gestionadas por un grupo de agentes interconectados, alineados con el estilo y los objetivos de marketing del cliente.",
+            "Identifican usuarios clave y reparten interacciones de forma coordinada."
+          ],
+          "imagen": null,
+          "alt": null
+        }
+      ]
+    },
+
+    "sobre-mi": {
+      "etiquetaIcono": "SOBRE_MI.TXT",
+      "titulo": "sobre_mi.txt — Bloc de notas",
+      "meta": "arquitecto_ia.exe · en ejecución desde 2023",
+      "parrafos": [
+        "Construyo agentes de IA que trabajan mientras tú no miras: leen audios de comerciales, actualizan CRMs, vigilan el BOE y contestan WhatsApps a las tres de la mañana sin quejarse.",
+        "Código propio, sin conectores de terceros. Si algo se rompe, sé exactamente dónde — porque lo escribí yo. Cada sistema que entrego lleva detrás una decisión de arquitectura pensada para durar: integraciones directas con las herramientas que ya usa el cliente, trazas para saber qué hizo el agente y por qué, y un alcance acordado por escrito antes de la primera línea de código.",
+        "Una demo aguanta cinco minutos delante de un cliente; un sistema en producción aguanta un lunes por la mañana con veinte comerciales mandando audios a la vez. Diseño para lo segundo."
+      ],
+      "estado": "> sistema estable. 6 proyectos en producción. 0 demos abandonadas."
+    },
+
+    "contacto": {
+      "etiquetaIcono": "CONTACTO",
+      "titulo": "contacto.cfg",
+      "intro": "Cuéntame qué proceso te está costando horas y te digo si encaja.",
+      "etiquetas": {
+        "email": "email",
+        "telefono": "tel",
+        "linkedin": "linkedin",
+        "linkedinValor": "ver_perfil →"
+      }
+    }
+  }
+}

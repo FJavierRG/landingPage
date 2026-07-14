@@ -1,0 +1,25 @@
+---
+interface Props {
+  id: string;
+  title: string;
+  class?: string;
+  style?: string;
+}
+
+const { id, title, class: cls = '', style } = Astro.props;
+---
+
+<section class={`window ${cls}`} id={id} style={style} aria-label={title}>
+  <header class="titlebar">
+    <div class="dots">
+      <button class="dot dot-close" aria-label={`Cerrar ${title}`}></button>
+      <span class="dot"></span>
+      <span class="dot"></span>
+    </div>
+    <span class="title">{title}</span>
+    <span class="spacer"></span>
+  </header>
+  <div class="win-body" data-selectable>
+    <slot />
+  </div>
+</section>
